@@ -38,6 +38,16 @@ function formatDate(dateStr: string): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+function formatDateTime(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
+  });
+}
+
 interface CustomTooltipProps {
   active?: boolean;
   payload?: Array<{ name: string; value: number; color: string }>;
@@ -52,7 +62,7 @@ function CustomTooltip({ active, payload, label, models }: CustomTooltipProps) {
 
   return (
     <div className="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-lg p-3 shadow-xl">
-      <p className="text-sm text-[var(--text-muted)] mb-2">{formatDate(label || '')}</p>
+      <p className="text-sm text-[var(--text-muted)] mb-2">{formatDateTime(label || '')}</p>
       <div className="space-y-1">
         {sortedPayload.map((entry) => {
           const model = models.find(m => m.id === entry.name);
@@ -159,11 +169,14 @@ export default function PerformanceChart({
         )}
         <XAxis
           dataKey="date"
-          tickFormatter={formatDate}
+          tickFormatter={formatDateTime}
           stroke="var(--text-muted)"
-          tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+          tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
           axisLine={{ stroke: 'var(--border-subtle)' }}
           tickLine={{ stroke: 'var(--border-subtle)' }}
+          angle={-45}
+          textAnchor="end"
+          height={80}
         />
         <YAxis
           domain={yDomain}
