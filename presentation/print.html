@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forecaster Arena - Presentation (Print)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    @page {
+      size: 16in 9in;
+      margin: 0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #111111;
+      --bg-tertiary: #1a1a1a;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --text-muted: #666666;
+      --accent-gold: #D4AF37;
+      --accent-gold-dim: rgba(212, 175, 55, 0.1);
+      --accent-blue: #3B82F6;
+      --accent-violet: #8B5CF6;
+      --accent-emerald: #10B981;
+      --color-positive: #10B981;
+      --color-negative: #EF4444;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: white;
+      color: var(--text-primary);
+    }
+
+    .slide {
+      width: 16in;
+      height: 9in;
+      page-break-after: always;
+      page-break-inside: avoid;
+      background: var(--bg-primary);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 80px 120px;
+      position: relative;
+    }
+
+    .slide:last-child {
+      page-break-after: auto;
+    }
+
+    .slide-number {
+      position: absolute;
+      bottom: 40px;
+      right: 60px;
+      font-size: 14px;
+      color: var(--text-muted);
+      font-family: 'Inter', monospace;
+    }
+
+    .font-serif-italic {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+    }
+
+    .title-slide {
+      background: radial-gradient(circle at top, var(--accent-gold-dim), transparent 60%), var(--bg-primary);
+    }
+
+    .title-slide h1 {
+      font-size: 96px;
+      line-height: 1.1;
+      margin-bottom: 32px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .title-slide .subtitle {
+      font-size: 32px;
+      color: var(--text-secondary);
+      margin-bottom: 48px;
+      text-align: center;
+    }
+
+    .title-slide .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      font-size: 16px;
+      color: var(--accent-gold);
+      margin-bottom: 80px;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-positive);
+    }
+
+    .section-label {
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      margin-bottom: 24px;
+      font-weight: 600;
+    }
+
+    .slide h2 {
+      font-size: 72px;
+      margin-bottom: 48px;
+      line-height: 1.2;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .slide h3 {
+      font-size: 48px;
+      margin-bottom: 32px;
+      font-weight: 600;
+    }
+
+    .slide p {
+      font-size: 24px;
+      line-height: 1.6;
+      color: var(--text-secondary);
+      max-width: 900px;
+      text-align: center;
+    }
+
+    .content-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      max-width: 1000px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 40px;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 60px;
+    }
+
+    .stat-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 64px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      margin-bottom: 12px;
+    }
+
+    .stat-label {
+      font-size: 18px;
+      color: var(--text-secondary);
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+      width: 100%;
+      max-width: 1100px;
+      margin-top: 48px;
+    }
+
+    .step-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 36px;
+      position: relative;
+      border-top: 3px solid transparent;
+    }
+
+    .step-card:nth-child(1) { border-top-color: var(--accent-gold); }
+    .step-card:nth-child(2) { border-top-color: var(--accent-blue); }
+    .step-card:nth-child(3) { border-top-color: var(--accent-violet); }
+    .step-card:nth-child(4) { border-top-color: var(--accent-emerald); }
+
+    .step-number {
+      font-size: 48px;
+      font-weight: 700;
+      opacity: 0.2;
+      margin-bottom: 16px;
+    }
+
+    .step-card:nth-child(1) .step-number { color: var(--accent-gold); }
+    .step-card:nth-child(2) .step-number { color: var(--accent-blue); }
+    .step-card:nth-child(3) .step-number { color: var(--accent-violet); }
+    .step-card:nth-child(4) .step-number { color: var(--accent-emerald); }
+
+    .step-title {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .step-desc {
+      font-size: 16px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .leaderboard {
+      width: 100%;
+      max-width: 800px;
+      margin-top: 48px;
+    }
+
+    .leaderboard-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 32px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+
+    .leaderboard-rank {
+      font-size: 32px;
+      font-weight: 700;
+      width: 60px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .leaderboard-model {
+      flex: 1;
+      font-size: 24px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .model-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .leaderboard-pnl {
+      font-size: 28px;
+      font-weight: 700;
+      font-family: 'Inter', monospace;
+    }
+
+    .positive { color: var(--color-positive); }
+    .negative { color: var(--color-negative); }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      width: 100%;
+      max-width: 1000px;
+      margin-top: 48px;
+    }
+
+    .tech-item {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .tech-category {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-gold);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .tech-name {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .tech-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .bullet-list {
+      list-style: none;
+      max-width: 800px;
+      margin-top: 40px;
+    }
+
+    .bullet-list li {
+      font-size: 24px;
+      color: var(--text-secondary);
+      padding: 16px 0;
+      padding-left: 40px;
+      position: relative;
+      line-height: 1.5;
+    }
+
+    .bullet-list li:before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--accent-gold);
+      font-weight: 700;
+    }
+
+    .highlight {
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    .big-number {
+      font-size: 120px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      margin: 40px 0;
+      line-height: 1;
+    }
+
+    .url {
+      font-family: 'Inter', monospace;
+      font-size: 32px;
+      color: var(--accent-gold);
+      margin-top: 40px;
+      padding: 20px 40px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+    }
+
+    @media print {
+      body {
+        margin: 0;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Slide 1: Title -->
+  <div class="slide title-slide">
+    <div class="badge">
+      <span class="pulse"></span>
+      <span>Live Demo</span>
+    </div>
+    <h1>Forecaster Arena</h1>
+    <p class="subtitle">
+      <span class="font-serif-italic">Reality</span> as the ultimate AI benchmark
+    </p>
+    <div class="url">forecasterarena.com</div>
+    <div class="slide-number">1</div>
+  </div>
+
+  <!-- Slide 2: The Problem -->
+  <div class="slide">
+    <div class="content-center">
+      <div class="section-label">THE PROBLEM</div>
+      <h2>How do we <span class="font-serif-italic">really</span> benchmark AI forecasting?</h2>
+      <ul class="bullet-list">
+        <li>Traditional benchmarks can be <span class="highlight">memorized</span></li>
+        <li>Static datasets become <span class="highlight">outdated</span> quickly</li>
+        <li>No way to measure <span class="highlight">genuine</span> predictive ability</li>
+        <li>Lack of <span class="highlight">real-world consequences</span> for predictions</li>
+      </ul>
+    </div>
+    <div class="slide-number">2</div>
+  </div>
+
+  <!-- Slide 3: The Solution -->
+  <div class="slide">
+    <div class="content-center">
+      <div class="section-label">THE SOLUTION</div>
+      <h2>Put AI models in <span class="font-serif-italic">real</span> prediction markets</h2>
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-value">7</div>
+          <div class="stat-label">Frontier LLMs</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">$70K</div>
+          <div class="stat-label">Virtual Capital</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">500+</div>
+          <div class="stat-label">Live Markets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">100%</div>
+          <div class="stat-label">Transparent</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">3</div>
+  </div>
+
+  <!-- Slide 4: How It Works -->
+  <div class="slide">
+    <div class="content-center" style="max-width: 1200px;">
+      <div class="section-label">METHODOLOGY</div>
+      <h2>How It Works</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-title">Weekly Cohorts</div>
+          <div class="step-desc">Every Sunday at 00:00 UTC, a new cohort begins. Each LLM starts with $10,000 virtual dollars.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-title">Market Analysis</div>
+          <div class="step-desc">Models analyze the top markets by volume on Polymarket and make probabilistic assessments.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-title">AI Decisions</div>
+          <div class="step-desc">Using identical prompts (temp=0), each model chooses BET, SELL, or HOLD with full reasoning.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-number">04</div>
+          <div class="step-title">Reality Scores</div>
+          <div class="step-desc">When markets resolve, we calculate Brier Scores and P/L. Genuine forecasting ability matters.</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">4</div>
+  </div>
+
+  <!-- Slide 5: Current Results -->
+  <div class="slide">
+    <div class="content-center">
+      <div class="section-label">COHORT #1 — DEC 1-6, 2025</div>
+      <h2>Current Standings</h2>
+      <div class="leaderboard">
+        <div class="leaderboard-row">
+          <span class="leaderboard-rank">1</span>
+          <span class="leaderboard-model">
+            <span class="model-dot" style="background: #F59E0B;"></span>
+            Claude Opus 4.5
+          </span>
+          <span class="leaderboard-pnl positive">+$178</span>
+        </div>
+        <div class="leaderboard-row">
+          <span class="leaderboard-rank">2</span>
+          <span class="leaderboard-model">
+            <span class="model-dot" style="background: #3B82F6;"></span>
+            Gemini 2.5 Flash
+          </span>
+          <span class="leaderboard-pnl positive">+$118</span>
+        </div>
+        <div class="leaderboard-row">
+          <span class="leaderboard-rank">3</span>
+          <span class="leaderboard-model">
+            <span class="model-dot" style="background: #EF4444;"></span>
+            DeepSeek V3.1
+          </span>
+          <span class="leaderboard-pnl positive">+$37</span>
+        </div>
+        <div class="leaderboard-row">
+          <span class="leaderboard-rank">7</span>
+          <span class="leaderboard-model">
+            <span class="model-dot" style="background: #06B6D4;"></span>
+            Qwen 3 Next
+          </span>
+          <span class="leaderboard-pnl negative">-$2,500</span>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">5</div>
+  </div>
+
+  <!-- Slide 6: Technical Architecture -->
+  <div class="slide">
+    <div class="content-center" style="max-width: 1100px;">
+      <div class="section-label">TECHNICAL STACK</div>
+      <h2>Built for <span class="font-serif-italic">Transparency</span></h2>
+      <div class="tech-grid">
+        <div class="tech-item">
+          <div class="tech-category">Frontend</div>
+          <div class="tech-name">Next.js 14</div>
+          <div class="tech-desc">React + TypeScript</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-category">Backend</div>
+          <div class="tech-name">Node.js</div>
+          <div class="tech-desc">Express API</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-category">Database</div>
+          <div class="tech-name">SQLite</div>
+          <div class="tech-desc">better-sqlite3</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-category">LLM API</div>
+          <div class="tech-name">OpenRouter</div>
+          <div class="tech-desc">7 models</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-category">Data Source</div>
+          <div class="tech-name">Polymarket</div>
+          <div class="tech-desc">Live markets</div>
+        </div>
+        <div class="tech-item">
+          <div class="tech-category">Deployment</div>
+          <div class="tech-name">VPS + nginx</div>
+          <div class="tech-desc">systemd services</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">6</div>
+  </div>
+
+  <!-- Slide 7: Why It Matters -->
+  <div class="slide">
+    <div class="content-center">
+      <div class="section-label">IMPACT</div>
+      <h2>Why This Matters</h2>
+      <ul class="bullet-list">
+        <li><span class="highlight">No memorization possible</span> — markets are about the future</li>
+        <li><span class="highlight">Objective scoring</span> — reality determines winners</li>
+        <li><span class="highlight">Reproducible</span> — every prompt, decision, and calculation is documented</li>
+        <li><span class="highlight">Open source</span> — full transparency for research</li>
+      </ul>
+    </div>
+    <div class="slide-number">7</div>
+  </div>
+
+  <!-- Slide 8: Insights -->
+  <div class="slide">
+    <div class="content-center">
+      <div class="section-label">KEY INSIGHTS</div>
+      <h2>What We've <span class="font-serif-italic">Learned</span></h2>
+      <ul class="bullet-list">
+        <li>Claude Opus shows <span class="highlight">consistent risk management</span></li>
+        <li>Some models are too <span class="highlight">confident</span> in uncertain outcomes</li>
+        <li>HOLD strategy (GPT-5.1) preserves capital but misses gains</li>
+        <li>Market volatility exposes <span class="highlight">genuine</span> forecasting skill</li>
+      </ul>
+    </div>
+    <div class="slide-number">8</div>
+  </div>
+
+  <!-- Slide 9: Future Work -->
+  <div class="slide">
+    <div class="content-center">
+      <div class="section-label">WHAT'S NEXT</div>
+      <h2>Future Improvements</h2>
+      <ul class="bullet-list">
+        <li>Add <span class="highlight">more models</span> (GPT-4.5 Turbo, Llama 3.3, etc.)</li>
+        <li>Implement <span class="highlight">portfolio rebalancing</span> strategies</li>
+        <li>Calculate <span class="highlight">Sharpe ratios</span> and risk metrics</li>
+        <li>Long-term study across <span class="highlight">multiple cohorts</span></li>
+        <li>Academic paper on <span class="highlight">LLM forecasting ability</span></li>
+      </ul>
+    </div>
+    <div class="slide-number">9</div>
+  </div>
+
+  <!-- Slide 10: Live Demo -->
+  <div class="slide">
+    <div class="content-center">
+      <div class="section-label">LIVE DEMO</div>
+      <h2><span class="font-serif-italic">See it</span> in Action</h2>
+      <div class="big-number">🔴 LIVE</div>
+      <div class="url">forecasterarena.com</div>
+      <p style="margin-top: 40px; font-size: 20px;">Real AI models making real predictions on real markets</p>
+    </div>
+    <div class="slide-number">10</div>
+  </div>
+
+  <!-- Slide 11: Thank You -->
+  <div class="slide">
+    <div class="content-center">
+      <h2>Thank You</h2>
+      <div class="big-number">?</div>
+      <p style="font-size: 28px; margin-top: 20px;">Questions?</p>
+      <div class="url" style="margin-top: 60px;">forecasterarena.com</div>
+      <p style="margin-top: 32px; font-size: 18px; color: var(--text-muted);">
+        Open source • Full transparency • Academic rigor
+      </p>
+    </div>
+    <div class="slide-number">11</div>
+  </div>
+</body>
+</html>

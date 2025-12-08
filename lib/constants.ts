@@ -177,7 +177,7 @@ export const CRON_SECRET = process.env.CRON_SECRET || 'dev-secret';
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
 
 // Production security warnings
-if (process.env.NODE_ENV === 'production') {
+if (typeof window === 'undefined' && process.env.NODE_ENV === 'production') {
   if (!process.env.CRON_SECRET || CRON_SECRET === 'dev-secret') {
     console.error('SECURITY WARNING: CRON_SECRET is not set or using default value!');
     console.error('Set CRON_SECRET environment variable in production.');
