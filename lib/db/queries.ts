@@ -572,7 +572,7 @@ export function settlePosition(id: string): void {
 
   db.prepare(`
     UPDATE positions
-    SET status = 'settled', closed_at = CURRENT_TIMESTAMP
+    SET current_value = 0, unrealized_pnl = 0, status = 'settled', closed_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `).run(id);
 }

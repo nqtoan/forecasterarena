@@ -64,16 +64,47 @@ export async function POST(request: NextRequest) {
           for (const position of positions) {
             const market = getMarketById(position.market_id);
             if (!market) continue;
-            
-            // Calculate current value
-            const currentPrice = market.current_price || 0.5;
+
+            // Calculate current value based on market type
+            let currentPrice: number;
+            const isBinary = market.market_type === 'binary';
+
+            if (isBinary) {
+              // Binary market: use current_price for YES, (1 - price) for NO
+              currentPrice = market.current_price || 0.5;
+            } else {
+              // Multi-outcome market: parse prices from JSON
+              try {
+                const prices = JSON.parse(market.current_prices || '{}');
+                const outcomePrice = prices[position.side];
+
+                if (outcomePrice === undefined || outcomePrice === null) {
+                  console.warn(
+                    `[Snapshot] No price for outcome "${position.side}" in market ${market.id}`
+                  );
+                  currentPrice = 0.5;
+                } else {
+                  currentPrice = parseFloat(outcomePrice);
+                  if (isNaN(currentPrice) || currentPrice < 0 || currentPrice > 1) {
+                    console.warn(
+                      `[Snapshot] Invalid price ${outcomePrice} for "${position.side}"`
+                    );
+                    currentPrice = 0.5;
+                  }
+                }
+              } catch (e) {
+                console.warn(`[Snapshot] Failed to parse prices for market ${market.id}`);
+                currentPrice = 0.5;
+              }
+            }
+
             const value = calculatePositionValue(
               position.shares,
               position.side,
               currentPrice
             );
             const unrealizedPnl = value - position.total_cost;
-            
+
             // Update position MTM
             updatePositionMTM(position.id, value, unrealizedPnl);
             positionsValue += value;
