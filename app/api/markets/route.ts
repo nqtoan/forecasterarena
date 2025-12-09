@@ -89,17 +89,44 @@ export async function GET(request: NextRequest) {
     
     // Get categories for filter dropdown
     const categories = db.prepare(`
-      SELECT DISTINCT category 
-      FROM markets 
-      WHERE category IS NOT NULL 
+      SELECT DISTINCT category
+      FROM markets
+      WHERE category IS NOT NULL
       ORDER BY category
     `).all() as { category: string }[];
-    
+
+    // Get aggregate stats (independent of filters)
+    const statsQuery = `
+      SELECT
+        COUNT(*) as total_markets,
+        SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_markets,
+        (SELECT COUNT(DISTINCT m.id)
+         FROM markets m
+         WHERE EXISTS (
+           SELECT 1 FROM positions p
+           WHERE p.market_id = m.id
+           AND p.status = 'open'
+         )
+        ) as markets_with_positions
+      FROM markets
+    `;
+    const stats = db.prepare(statsQuery).get() as {
+      total_markets: number;
+      active_markets: number;
+      markets_with_positions: number;
+    };
+
     return NextResponse.json({
       markets,
       total,
       has_more: offset + limit < total,
       categories: categories.map(c => c.category),
+      stats: {
+        total_markets: stats.total_markets,
+        active_markets: stats.active_markets,
+        markets_with_positions: stats.markets_with_positions,
+        categories_count: categories.length
+      },
       updated_at: new Date().toISOString()
     });
     

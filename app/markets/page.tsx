@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 
+
 interface Market {
   id: string;
   polymarket_id: string;
@@ -15,6 +16,20 @@ interface Market {
   status: string;
   positions_count: number;
 }
+interface AggregateStats {
+  total_markets: number;
+  active_markets: number;
+  markets_with_positions: number;
+  categories_count: number;
+}
+
+
+interface AggregateStats {
+  total_markets: number;
+  active_markets: number;
+  markets_with_positions: number;
+  categories_count: number;
+}
 
 type SortOption = 'volume' | 'close_date' | 'created';
 type StatusOption = 'active' | 'closed' | 'resolved' | 'all';
@@ -25,7 +40,13 @@ export default function MarketsPage() {
   const [categories, setCategories] = useState<string[]>([]);
   const [total, setTotal] = useState(0);
   const [hasMore, setHasMore] = useState(false);
-  
+  const [stats, setStats] = useState<AggregateStats>({
+    total_markets: 0,
+    active_markets: 0,
+    markets_with_positions: 0,
+    categories_count: 0
+  });
+
   // Filters
   const [status, setStatus] = useState<StatusOption>('active');
   const [category, setCategory] = useState<string>('');
@@ -45,7 +66,7 @@ export default function MarketsPage() {
       params.set('sort', sort);
       params.set('limit', '50');
       params.set('offset', reset ? '0' : String(offset));
-      
+
       const res = await fetch(`/api/markets?${params}`);
       if (res.ok) {
         const data = await res.json();
@@ -59,6 +80,8 @@ export default function MarketsPage() {
         setTotal(data.total);
         setHasMore(data.has_more);
         if (data.categories) setCategories(data.categories);
+        if (data.stats) setStats(data.stats);
+        if (data.stats) setStats(data.stats);
       }
     } catch {
       console.log('Error fetching markets');
@@ -66,6 +89,68 @@ export default function MarketsPage() {
       setLoading(false);
     }
   }, [status, category, search, sort, cohortBets, offset]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   useEffect(() => {
     fetchMarkets(true);
@@ -109,9 +194,6 @@ export default function MarketsPage() {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
-  // Count stats
-  const activeCount = markets.filter(m => m.status === 'active').length;
-  const withPositions = markets.filter(m => m.positions_count > 0).length;
 
   return (
     <div className="min-h-screen">
@@ -131,19 +213,19 @@ export default function MarketsPage() {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
             <div className="stat-card">
-              <p className="text-3xl font-bold">{total}</p>
+              <p className="text-3xl font-bold">{stats.total_markets}</p>
               <p className="text-sm text-[var(--text-muted)] mt-1">Total Markets</p>
             </div>
             <div className="stat-card">
-              <p className="text-3xl font-bold text-[var(--color-positive)]">{activeCount}</p>
+              <p className="text-3xl font-bold text-[var(--color-positive)]">{stats.active_markets}</p>
               <p className="text-sm text-[var(--text-muted)] mt-1">Active</p>
             </div>
             <div className="stat-card">
-              <p className="text-3xl font-bold text-[var(--accent-blue)]">{withPositions}</p>
+              <p className="text-3xl font-bold text-[var(--accent-blue)]">{stats.markets_with_positions}</p>
               <p className="text-sm text-[var(--text-muted)] mt-1">With Positions</p>
             </div>
             <div className="stat-card">
-              <p className="text-3xl font-bold">{categories.length}</p>
+              <p className="text-3xl font-bold">{stats.categories_count}</p>
               <p className="text-sm text-[var(--text-muted)] mt-1">Categories</p>
             </div>
           </div>
