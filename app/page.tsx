@@ -446,8 +446,8 @@ export default function Home() {
     <main>
       <HeroSection />
       <LiveStatsDashboard leader={leaderboard[0] || null} hasRealData={hasRealData} />
-      <LeaderboardPreview data={leaderboard} hasRealData={hasRealData} />
       <PerformanceChartSection />
+      <LeaderboardPreview data={leaderboard} hasRealData={hasRealData} />
       <HowItWorks />
       <CTASection />
     </main>
