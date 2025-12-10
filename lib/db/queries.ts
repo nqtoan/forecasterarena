@@ -34,12 +34,13 @@ import { INITIAL_BALANCE, METHODOLOGY_VERSION } from '../constants';
 /**
  * Get all cohorts ordered by start date (newest first)
  */
-export function getAllCohorts(): Cohort[] {
+export function getAllCohorts(limit: number = 100): Cohort[] {
   const db = getDb();
   return db.prepare(`
     SELECT * FROM cohorts
     ORDER BY started_at DESC
-  `).all() as Cohort[];
+    LIMIT ?
+  `).all(limit) as Cohort[];
 }
 
 /**
@@ -68,6 +69,31 @@ export function getCohortById(id: string): Cohort | undefined {
 export function getCohortByNumber(cohortNumber: number): Cohort | undefined {
   const db = getDb();
   return db.prepare('SELECT * FROM cohorts WHERE cohort_number = ?').get(cohortNumber) as Cohort | undefined;
+}
+
+/**
+ * Get cohort for the current week (Sunday-based)
+ * Returns a cohort if one was started this week, undefined otherwise.
+ * Used for idempotency check in start-cohort cron.
+ */
+export function getCohortForCurrentWeek(): Cohort | undefined {
+  const db = getDb();
+
+  // Calculate the start of the current week (Sunday 00:00 UTC)
+  const now = new Date();
+  const dayOfWeek = now.getUTCDay(); // 0 = Sunday
+  const weekStart = new Date(now);
+  weekStart.setUTCDate(now.getUTCDate() - dayOfWeek);
+  weekStart.setUTCHours(0, 0, 0, 0);
+
+  const weekStartISO = weekStart.toISOString();
+
+  return db.prepare(`
+    SELECT * FROM cohorts
+    WHERE started_at >= ?
+    ORDER BY started_at ASC
+    LIMIT 1
+  `).get(weekStartISO) as Cohort | undefined;
 }
 
 /**
@@ -289,24 +315,26 @@ export function updateAgentBalance(id: string, cashBalance: number, totalInveste
 /**
  * Get all markets
  */
-export function getAllMarkets(): Market[] {
+export function getAllMarkets(limit: number = 1000): Market[] {
   const db = getDb();
   return db.prepare(`
     SELECT * FROM markets
     ORDER BY volume DESC NULLS LAST
-  `).all() as Market[];
+    LIMIT ?
+  `).all(limit) as Market[];
 }
 
 /**
  * Get active markets
  */
-export function getActiveMarkets(): Market[] {
+export function getActiveMarkets(limit: number = 500): Market[] {
   const db = getDb();
   return db.prepare(`
     SELECT * FROM markets
     WHERE status = 'active'
     ORDER BY volume DESC NULLS LAST
-  `).all() as Market[];
+    LIMIT ?
+  `).all(limit) as Market[];
 }
 
 /**
@@ -459,6 +487,27 @@ export function getOpenPositions(agentId: string): Position[] {
 }
 
 /**
+ * Check if a cohort has any open positions and has trading activity
+ *
+ * Optimized single query to replace N+1 pattern in isCohortComplete.
+ *
+ * @param cohortId - Cohort to check
+ * @returns Object with open_positions count and total_decisions count
+ */
+export function getCohortCompletionStatus(cohortId: string): { open_positions: number; total_decisions: number } {
+  const db = getDb();
+  return db.prepare(`
+    SELECT
+      (SELECT COUNT(*) FROM positions p
+       JOIN agents a ON p.agent_id = a.id
+       WHERE a.cohort_id = ? AND p.status = 'open') as open_positions,
+      (SELECT COUNT(*) FROM decisions d
+       JOIN agents a ON d.agent_id = a.id
+       WHERE a.cohort_id = ?) as total_decisions
+  `).get(cohortId, cohortId) as { open_positions: number; total_decisions: number };
+}
+
+/**
  * Get positions with market info for an agent
  */
 export function getPositionsWithMarkets(agentId: string): PositionWithMarket[] {
@@ -519,6 +568,11 @@ export function upsertPosition(
     // Update existing position (average in)
     const newShares = existing.shares + shares;
     const newCost = existing.total_cost + cost;
+
+    // Guard against division by zero
+    if (newShares <= 0) {
+      throw new Error(`Cannot calculate avg price: newShares is ${newShares}`);
+    }
     const newAvgPrice = newCost / newShares;
 
     db.prepare(`
@@ -549,6 +603,11 @@ export function reducePosition(id: string, sharesToSell: number): void {
   const position = getPositionById(id);
 
   if (!position) return;
+
+  // Guard against division by zero
+  if (position.shares <= 0) {
+    throw new Error(`Cannot reduce position ${id}: shares is ${position.shares}`);
+  }
 
   const newShares = position.shares - sharesToSell;
   const costReduction = (sharesToSell / position.shares) * position.total_cost;
@@ -1012,79 +1071,84 @@ export function getTotalCostsByModel(): Record<string, number> {
 
 /**
  * Get aggregate leaderboard across all cohorts
+ *
+ * Optimized to use a single query with CTEs instead of N+1 pattern.
  */
 export function getAggregateLeaderboard(): LeaderboardEntry[] {
   const db = getDb();
 
-  // Get all models with their aggregate stats
-  const models = getAllModels();
-  const leaderboard: LeaderboardEntry[] = [];
-
-  for (const model of models) {
-    // Get all agents for this model across cohorts
-    const agents = db.prepare(`
-      SELECT a.*, c.cohort_number
+  // Single optimized query using CTEs to avoid N+1 pattern
+  const results = db.prepare(`
+    WITH latest_snapshots AS (
+      -- Get latest snapshot per agent using window function
+      SELECT
+        ps.*,
+        ROW_NUMBER() OVER (PARTITION BY ps.agent_id ORDER BY ps.snapshot_timestamp DESC) as rn
+      FROM portfolio_snapshots ps
+    ),
+    agent_stats AS (
+      -- Aggregate snapshot data by model
+      SELECT
+        a.model_id,
+        COUNT(DISTINCT a.id) as num_cohorts,
+        SUM(COALESCE(ls.total_pnl, 0)) as total_pnl,
+        SUM(COALESCE(ls.num_resolved_bets, 0)) as total_resolved_bets
       FROM agents a
-      JOIN cohorts c ON a.cohort_id = c.id
-      WHERE a.model_id = ?
-    `).all(model.id) as (Agent & { cohort_number: number })[];
-
-    if (agents.length === 0) continue;
-
-    // Calculate aggregate stats
-    let totalPnl = 0;
-    let totalResolvedBets = 0;
-
-    for (const agent of agents) {
-      const snapshot = getLatestSnapshot(agent.id);
-      if (snapshot) {
-        totalPnl += snapshot.total_pnl;
-        totalResolvedBets += snapshot.num_resolved_bets;
-      }
-    }
-
-    // Get average Brier score
-    const brierResult = db.prepare(`
-      SELECT AVG(bs.brier_score) as avg_brier
+      LEFT JOIN latest_snapshots ls ON a.id = ls.agent_id AND ls.rn = 1
+      GROUP BY a.model_id
+    ),
+    brier_stats AS (
+      -- Calculate average Brier score by model
+      SELECT
+        a.model_id,
+        AVG(bs.brier_score) as avg_brier_score
       FROM brier_scores bs
       JOIN agents a ON bs.agent_id = a.id
-      WHERE a.model_id = ?
-    `).get(model.id) as { avg_brier: number | null };
-
-    // Calculate win rate
-    // A "win" is when the model's bet side matches the winning outcome
-    // We need to join with trades to get the side, then compare with market resolution
-    const winResult = db.prepare(`
-      SELECT 
-        COUNT(CASE WHEN 
+      GROUP BY a.model_id
+    ),
+    win_stats AS (
+      -- Calculate win rate by model
+      SELECT
+        a.model_id,
+        COUNT(CASE WHEN
           (t.side = 'YES' AND m.resolution_outcome = 'YES') OR
           (t.side = 'NO' AND m.resolution_outcome = 'NO') OR
           (t.side = m.resolution_outcome)
         THEN 1 END) as wins,
-        COUNT(*) as total
+        COUNT(*) as total_bets
       FROM brier_scores bs
       JOIN agents a ON bs.agent_id = a.id
       JOIN trades t ON bs.trade_id = t.id
       JOIN markets m ON bs.market_id = m.id
-      WHERE a.model_id = ? AND m.status = 'resolved'
-    `).get(model.id) as { wins: number; total: number };
+      WHERE m.status = 'resolved'
+      GROUP BY a.model_id
+    )
+    SELECT
+      m.id as model_id,
+      m.display_name,
+      m.provider,
+      m.color,
+      COALESCE(s.total_pnl, 0) as total_pnl,
+      CASE WHEN s.num_cohorts > 0
+        THEN (COALESCE(s.total_pnl, 0) / (s.num_cohorts * ?)) * 100
+        ELSE 0
+      END as total_pnl_percent,
+      b.avg_brier_score,
+      COALESCE(s.num_cohorts, 0) as num_cohorts,
+      COALESCE(s.total_resolved_bets, 0) as num_resolved_bets,
+      CASE WHEN w.total_bets > 0
+        THEN CAST(w.wins AS REAL) / w.total_bets
+        ELSE NULL
+      END as win_rate
+    FROM models m
+    LEFT JOIN agent_stats s ON m.id = s.model_id
+    LEFT JOIN brier_stats b ON m.id = b.model_id
+    LEFT JOIN win_stats w ON m.id = w.model_id
+    WHERE m.is_active = 1 AND COALESCE(s.num_cohorts, 0) > 0
+    ORDER BY total_pnl DESC
+  `).all(INITIAL_BALANCE) as LeaderboardEntry[];
 
-    leaderboard.push({
-      model_id: model.id,
-      display_name: model.display_name,
-      provider: model.provider,
-      color: model.color || '#000000',
-      total_pnl: totalPnl,
-      total_pnl_percent: (totalPnl / (agents.length * INITIAL_BALANCE)) * 100,
-      avg_brier_score: brierResult.avg_brier,
-      num_cohorts: agents.length,
-      num_resolved_bets: totalResolvedBets,
-      win_rate: winResult.total > 0 ? winResult.wins / winResult.total : null
-    });
-  }
-
-  // Sort by total P/L descending
-  return leaderboard.sort((a, b) => b.total_pnl - a.total_pnl);
+  return results;
 }
 
 /**

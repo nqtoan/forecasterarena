@@ -8,13 +8,14 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
+import { parseIntParam, safeErrorMessage } from '@/lib/utils/security';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 50);
+    const limit = parseIntParam(searchParams.get('limit'), 10, 50);
     
     const db = getDb();
     
@@ -39,14 +40,17 @@ export async function GET(request: NextRequest) {
       LIMIT ?
     `).all(limit);
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       decisions,
       updated_at: new Date().toISOString()
     });
+
+    // Cache for 2 minutes - decisions are more time-sensitive
+    response.headers.set('Cache-Control', 'public, max-age=120, stale-while-revalidate=30');
+    return response;
     
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: safeErrorMessage(error) }, { status: 500 });
   }
 }
 

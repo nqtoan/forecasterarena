@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { getMarketById } from '@/lib/db/queries';
+import { safeErrorMessage } from '@/lib/utils/security';
 
 export const dynamic = 'force-dynamic';
 
@@ -93,8 +94,7 @@ export async function GET(
     });
 
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: safeErrorMessage(error) }, { status: 500 });
   }
 }
 

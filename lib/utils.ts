@@ -46,8 +46,29 @@ export function formatPnL(value: number, decimals: number = 0): string {
 }
 
 /**
+ * Parse a UTC timestamp from the database format (YYYY-MM-DD HH:MM:SS) or ISO 8601
+ * into a Date object that correctly represents UTC time.
+ *
+ * The DB stores timestamps in UTC but without a timezone indicator.
+ * JavaScript would otherwise interpret "2025-12-07 23:35:51" as local time.
+ * This function ensures it's parsed as UTC.
+ *
+ * @param dateStr - Date string from database or ISO format
+ * @returns Date object representing the UTC time
+ */
+export function parseUTCTimestamp(dateStr: string): Date {
+  // If already has 'Z' or timezone offset, parse directly
+  if (dateStr.includes('Z') || /[+-]\d{2}:?\d{2}$/.test(dateStr)) {
+    return new Date(dateStr);
+  }
+  // Convert "YYYY-MM-DD HH:MM:SS" to ISO 8601 UTC format
+  const isoStr = dateStr.replace(' ', 'T') + 'Z';
+  return new Date(isoStr);
+}
+
+/**
  * Format a date as ISO8601 string (YYYY-MM-DD)
- * 
+ *
  * @param date - Date object or ISO string
  * @returns ISO date string
  */
@@ -237,18 +258,20 @@ export function today(): string {
 }
 
 /**
- * Get current timestamp as YYYY-MM-DD HH:MM:SS
+ * Get current timestamp as YYYY-MM-DD HH:MM:SS in UTC
  *
- * @returns Timestamp string
+ * Uses explicit UTC methods to ensure consistent storage regardless of server timezone.
+ *
+ * @returns UTC timestamp string
  */
 export function nowTimestamp(): string {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  const hours = String(now.getHours()).padStart(2, '0');
-  const minutes = String(now.getMinutes()).padStart(2, '0');
-  const seconds = String(now.getSeconds()).padStart(2, '0');
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(now.getUTCDate()).padStart(2, '0');
+  const hours = String(now.getUTCHours()).padStart(2, '0');
+  const minutes = String(now.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(now.getUTCSeconds()).padStart(2, '0');
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 

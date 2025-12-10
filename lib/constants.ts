@@ -176,16 +176,20 @@ export const CRON_SECRET = process.env.CRON_SECRET || 'dev-secret';
  */
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
 
-// Production security warnings
+// Production security enforcement - throw errors if credentials are not properly set
 if (typeof window === 'undefined' && process.env.NODE_ENV === 'production') {
   if (!process.env.CRON_SECRET || CRON_SECRET === 'dev-secret') {
-    console.error('SECURITY WARNING: CRON_SECRET is not set or using default value!');
-    console.error('Set CRON_SECRET environment variable in production.');
+    throw new Error(
+      'SECURITY ERROR: CRON_SECRET must be set in production. ' +
+      'Set CRON_SECRET environment variable to a secure random value.'
+    );
   }
 
   if (!process.env.ADMIN_PASSWORD || ADMIN_PASSWORD === 'admin') {
-    console.error('SECURITY WARNING: ADMIN_PASSWORD is not set or using default value!');
-    console.error('Set ADMIN_PASSWORD environment variable in production.');
+    throw new Error(
+      'SECURITY ERROR: ADMIN_PASSWORD must be set in production. ' +
+      'Set ADMIN_PASSWORD environment variable to a strong password.'
+    );
   }
 
   if (!OPENROUTER_API_KEY) {

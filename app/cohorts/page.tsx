@@ -37,8 +37,18 @@ export default function CohortsPage() {
   const activeCohorts = cohorts.filter(c => c.status === 'active');
   const completedCohorts = cohorts.filter(c => c.status === 'completed');
 
+  /**
+   * Parse UTC timestamp from DB format (YYYY-MM-DD HH:MM:SS) or ISO 8601
+   */
+  function parseUTCTimestamp(dateStr: string): Date {
+    if (dateStr.includes('Z') || /[+-]\d{2}:?\d{2}$/.test(dateStr)) {
+      return new Date(dateStr);
+    }
+    return new Date(dateStr.replace(' ', 'T') + 'Z');
+  }
+
   function formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('en-US', {
+    return parseUTCTimestamp(dateStr).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'

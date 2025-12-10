@@ -9,6 +9,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
 import { MODELS } from '@/lib/constants';
+import { safeErrorMessage } from '@/lib/utils/security';
 
 export const dynamic = 'force-dynamic';
 
@@ -90,16 +91,19 @@ export async function GET(request: NextRequest) {
       color: m.color
     }));
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       data,
       models,
       range,
       updated_at: new Date().toISOString()
     });
-    
+
+    // Cache for 5 minutes - performance data doesn't change frequently
+    response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+    return response;
+
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: safeErrorMessage(error) }, { status: 500 });
   }
 }
 

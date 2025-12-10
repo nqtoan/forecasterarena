@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { CRON_SECRET } from '@/lib/constants';
 import { runAllDecisions } from '@/lib/engine/decision';
 import { logSystemEvent } from '@/lib/db';
+import { constantTimeCompare } from '@/lib/utils/security';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes max for LLM calls
@@ -22,7 +23,7 @@ function verifyCronSecret(request: NextRequest): boolean {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader) return false;
   const token = authHeader.replace('Bearer ', '');
-  return token === CRON_SECRET;
+  return constantTimeCompare(token, CRON_SECRET);
 }
 
 export async function POST(request: NextRequest) {

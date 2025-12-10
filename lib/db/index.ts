@@ -257,5 +257,20 @@ export function logSystemEvent(
   );
 }
 
+/**
+ * Execute a function within a database transaction
+ *
+ * Wraps the provided function in a transaction. If any error occurs,
+ * all changes are rolled back. This ensures atomicity for multi-step operations.
+ *
+ * @param fn - Function to execute within the transaction
+ * @returns The return value of the function
+ * @throws Rethrows any error from the function after rollback
+ */
+export function withTransaction<T>(fn: () => T): T {
+  const database = getDb();
+  return database.transaction(fn)();
+}
+
 // Export default database getter
 export default getDb;

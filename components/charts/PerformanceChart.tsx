@@ -36,13 +36,24 @@ function formatCurrency(value: number): string {
   return `$${value.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
 }
 
+/**
+ * Parse UTC timestamp from DB format (YYYY-MM-DD HH:MM:SS) or ISO 8601
+ * DB stores timestamps in UTC without timezone indicator.
+ */
+function parseUTCTimestamp(dateStr: string): Date {
+  if (dateStr.includes('Z') || /[+-]\d{2}:?\d{2}$/.test(dateStr)) {
+    return new Date(dateStr);
+  }
+  return new Date(dateStr.replace(' ', 'T') + 'Z');
+}
+
 function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
+  const date = parseUTCTimestamp(dateStr);
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 function formatDateTime(dateStr: string): string {
-  const date = new Date(dateStr);
+  const date = parseUTCTimestamp(dateStr);
   return date.toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -132,7 +143,7 @@ export default function PerformanceChart({
         break;
     }
 
-    return data.filter(point => new Date(point.date) >= cutoffDate);
+    return data.filter(point => parseUTCTimestamp(point.date) >= cutoffDate);
   }, [data, timeRange]);
 
   const yDomain = useMemo(() => {

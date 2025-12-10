@@ -16,6 +16,7 @@ import {
   getTradesByAgent
 } from '@/lib/db/queries';
 import { INITIAL_BALANCE } from '@/lib/constants';
+import { safeErrorMessage } from '@/lib/utils/security';
 
 export const dynamic = 'force-dynamic';
 
@@ -151,10 +152,8 @@ export async function GET(
     });
     
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    
     return NextResponse.json(
-      { error: message },
+      { error: safeErrorMessage(error) },
       { status: 500 }
     );
   }

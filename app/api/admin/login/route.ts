@@ -1,16 +1,18 @@
 /**
  * Admin Login Endpoint
- * 
+ *
  * Simple password-based authentication for admin dashboard.
  * Sets a cookie to maintain session.
- * 
+ *
  * @route POST /api/admin/login
+ * @route DELETE /api/admin/login - Logout (requires auth)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { ADMIN_PASSWORD } from '@/lib/constants';
 import { logSystemEvent } from '@/lib/db';
-import { verifyAdminPassword } from '@/lib/utils/security';
+import { verifyAdminPassword, safeErrorMessage } from '@/lib/utils/security';
+import { isAuthenticated } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,7 +58,7 @@ export async function POST(request: NextRequest) {
     response.cookies.set(COOKIE_NAME, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'strict',  // Use strict for admin cookies to prevent CSRF
       maxAge: COOKIE_MAX_AGE,
       path: '/'
     });
@@ -64,19 +66,27 @@ export async function POST(request: NextRequest) {
     return response;
 
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-
     return NextResponse.json(
-      { error: message },
+      { error: safeErrorMessage(error) },
       { status: 500 }
     );
   }
 }
 
 export async function DELETE(request: NextRequest) {
-  // Logout
-  const response = NextResponse.json({ success: true });
+  // Require authentication for logout to prevent CSRF attacks
+  if (!isAuthenticated()) {
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    );
+  }
 
+  logSystemEvent('admin_logout', {
+    ip: request.headers.get('x-forwarded-for') || 'unknown'
+  });
+
+  const response = NextResponse.json({ success: true });
   response.cookies.delete(COOKIE_NAME);
 
   return response;

@@ -1,17 +1,23 @@
 /**
  * Admin Stats API Endpoint
- * 
+ *
  * Returns system statistics for the admin dashboard.
- * 
+ *
  * @route GET /api/admin/stats
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
+import { isAuthenticated } from '@/lib/auth';
+import { safeErrorMessage } from '@/lib/utils/security';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  if (!isAuthenticated()) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
     const db = getDb();
     
@@ -35,17 +41,20 @@ export async function GET(request: NextRequest) {
       SELECT COALESCE(SUM(api_cost_usd), 0) as total FROM decisions
     `).get() as { total: number }).total;
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       active_cohorts: activeCohorts,
       total_agents: totalAgents,
       markets_tracked: marketsTracked,
       total_api_cost: totalCost,
       updated_at: new Date().toISOString()
     });
-    
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    return response;
+
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('Admin stats API error:', error);
+    return NextResponse.json({ error: safeErrorMessage(error) }, { status: 500 });
   }
 }
 

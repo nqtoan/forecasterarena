@@ -8,6 +8,7 @@
 
 import { NextResponse } from 'next/server';
 import { getAggregateLeaderboard, getCohortSummaries } from '@/lib/db/queries';
+import { safeErrorMessage } from '@/lib/utils/security';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,18 +16,20 @@ export async function GET() {
   try {
     const leaderboard = getAggregateLeaderboard();
     const cohorts = getCohortSummaries();
-    
-    return NextResponse.json({
+
+    const response = NextResponse.json({
       leaderboard,
       cohorts,
       updated_at: new Date().toISOString()
     });
-    
+
+    // Cache for 5 minutes - leaderboard data doesn't change frequently
+    response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+    return response;
+
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    
     return NextResponse.json(
-      { error: message },
+      { error: safeErrorMessage(error) },
       { status: 500 }
     );
   }

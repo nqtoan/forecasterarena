@@ -7,7 +7,7 @@
  * @module engine/execution
  */
 
-import { generateId } from '../db';
+import { generateId, withTransaction } from '../db';
 import {
   getAgentById,
   updateAgentBalance,
@@ -45,7 +45,10 @@ export interface SellResult {
 
 /**
  * Execute a single bet
- * 
+ *
+ * All database operations are wrapped in a transaction to ensure atomicity.
+ * If any operation fails, all changes are rolled back.
+ *
  * @param agentId - Agent placing the bet
  * @param bet - Bet instruction
  * @param decisionId - Reference to the decision
@@ -61,36 +64,41 @@ export function executeBet(
     if (!agent) {
       return { success: false, error: 'Agent not found' };
     }
-    
+
     if (agent.status === 'bankrupt') {
       return { success: false, error: 'Agent is bankrupt' };
     }
-    
+
     const market = getMarketById(bet.market_id);
     if (!market) {
       return { success: false, error: 'Market not found' };
     }
-    
+
     if (market.status !== 'active') {
       return { success: false, error: `Market is ${market.status}` };
     }
-    
-    // Validate bet amount
+
+    // Validate bet amount - must be positive
+    if (bet.amount <= 0) {
+      return { success: false, error: 'Bet amount must be positive' };
+    }
+
+    // Validate bet amount against max
     const maxBet = agent.cash_balance * MAX_BET_PERCENT;
     if (bet.amount > maxBet) {
       return { success: false, error: `Bet exceeds max (${maxBet.toFixed(2)})` };
     }
-    
+
     if (bet.amount > agent.cash_balance) {
       return { success: false, error: 'Insufficient balance' };
     }
-    
+
     // Get current price for the side
     const isBinary = market.market_type === 'binary';
     let price: number;
-    
+
     if (isBinary) {
-      price = bet.side === 'YES' 
+      price = bet.side === 'YES'
         ? (market.current_price || 0.5)
         : (1 - (market.current_price || 0.5));
     } else {
@@ -99,68 +107,74 @@ export function executeBet(
       try {
         const prices = JSON.parse(market.current_prices || '{}');
         const outcomePrice = prices[bet.side];
-        
+
         if (outcomePrice === undefined || outcomePrice === null) {
-          return { 
-            success: false, 
-            error: `No price available for outcome "${bet.side}" in multi-outcome market` 
+          return {
+            success: false,
+            error: `No price available for outcome "${bet.side}" in multi-outcome market`
           };
         }
-        
+
         price = parseFloat(outcomePrice);
-        
+
         if (isNaN(price) || price < 0 || price > 1) {
-          return { 
-            success: false, 
-            error: `Invalid price ${outcomePrice} for outcome "${bet.side}"` 
+          return {
+            success: false,
+            error: `Invalid price ${outcomePrice} for outcome "${bet.side}"`
           };
         }
       } catch (e) {
-        return { 
-          success: false, 
-          error: `Failed to parse multi-outcome prices: ${e instanceof Error ? e.message : String(e)}` 
+        return {
+          success: false,
+          error: `Failed to parse multi-outcome prices: ${e instanceof Error ? e.message : String(e)}`
         };
       }
     }
-    
+
     // Calculate shares (amount / price)
     const shares = bet.amount / price;
-    
+
     // Calculate implied confidence for Brier scoring
     const impliedConfidence = bet.amount / maxBet;
-    
-    // Create or update position
-    const position = upsertPosition(
-      agentId,
-      market.id,
-      bet.side,
-      shares,
-      price,
-      bet.amount
-    );
-    
-    // Record trade
-    const trade = createTrade({
-      agent_id: agentId,
-      market_id: market.id,
-      position_id: position.id,
-      decision_id: decisionId,
-      trade_type: 'BUY',
-      side: bet.side,
-      shares,
-      price,
-      total_amount: bet.amount,
-      implied_confidence: impliedConfidence
+
+    // Execute all database operations in a transaction for atomicity
+    const result = withTransaction(() => {
+      // Create or update position
+      const position = upsertPosition(
+        agentId,
+        market.id,
+        bet.side,
+        shares,
+        price,
+        bet.amount
+      );
+
+      // Record trade
+      const trade = createTrade({
+        agent_id: agentId,
+        market_id: market.id,
+        position_id: position.id,
+        decision_id: decisionId,
+        trade_type: 'BUY',
+        side: bet.side,
+        shares,
+        price,
+        total_amount: bet.amount,
+        implied_confidence: impliedConfidence
+      });
+
+      // Update agent balance
+      const newCashBalance = agent.cash_balance - bet.amount;
+      const newTotalInvested = agent.total_invested + bet.amount;
+      updateAgentBalance(agentId, newCashBalance, newTotalInvested);
+
+      return { position, trade };
     });
-    
-    // Update agent balance
-    const newCashBalance = agent.cash_balance - bet.amount;
-    const newTotalInvested = agent.total_invested + bet.amount;
-    updateAgentBalance(agentId, newCashBalance, newTotalInvested);
-    
+
+    // Log after successful transaction (outside transaction to avoid rollback on log failure)
     logSystemEvent('trade_executed', {
       agent_id: agentId,
-      trade_id: trade.id,
+      trade_id: result.trade.id,
       type: 'BUY',
       market_id: market.id,
       side: bet.side,
@@ -168,14 +182,14 @@ export function executeBet(
       shares,
       price
     });
-    
+
     return {
       success: true,
-      trade_id: trade.id,
-      position_id: position.id,
+      trade_id: result.trade.id,
+      position_id: result.position.id,
       shares
     };
-    
+
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logSystemEvent('trade_error', { agent_id: agentId, error: message }, 'error');
@@ -185,7 +199,10 @@ export function executeBet(
 
 /**
  * Execute a single sell
- * 
+ *
+ * All database operations are wrapped in a transaction to ensure atomicity.
+ * If any operation fails, all changes are rolled back.
+ *
  * @param agentId - Agent selling
  * @param sell - Sell instruction
  * @param decisionId - Reference to the decision
@@ -201,32 +218,46 @@ export function executeSell(
     if (!agent) {
       return { success: false, error: 'Agent not found' };
     }
-    
+
     const position = getPositionById(sell.position_id);
     if (!position) {
       return { success: false, error: 'Position not found' };
     }
-    
+
     if (position.agent_id !== agentId) {
       return { success: false, error: 'Position does not belong to agent' };
     }
-    
+
     if (position.status !== 'open') {
       return { success: false, error: `Position is ${position.status}` };
     }
-    
+
+    // Validate sell percentage - must be positive
+    if (sell.percentage <= 0) {
+      return { success: false, error: 'Sell percentage must be positive' };
+    }
+
+    if (sell.percentage > 100) {
+      return { success: false, error: 'Sell percentage cannot exceed 100%' };
+    }
+
     const market = getMarketById(position.market_id);
     if (!market) {
       return { success: false, error: 'Market not found' };
     }
-    
+
     // Calculate shares to sell
     const sharesToSell = (sell.percentage / 100) * position.shares;
-    
+
+    // Validate shares to sell
+    if (sharesToSell <= 0) {
+      return { success: false, error: 'No shares to sell' };
+    }
+
     // Get current price
     const isBinary = market.market_type === 'binary';
     let currentPrice: number;
-    
+
     if (isBinary) {
       currentPrice = position.side === 'YES'
         ? (market.current_price || 0.5)
@@ -236,58 +267,69 @@ export function executeSell(
       try {
         const prices = JSON.parse(market.current_prices || '{}');
         const outcomePrice = prices[position.side];
-        
+
         if (outcomePrice === undefined || outcomePrice === null) {
-          return { 
-            success: false, 
-            error: `No current price available for outcome "${position.side}"` 
+          return {
+            success: false,
+            error: `No current price available for outcome "${position.side}"`
           };
         }
-        
+
         currentPrice = parseFloat(outcomePrice);
-        
+
         if (isNaN(currentPrice) || currentPrice < 0 || currentPrice > 1) {
-          return { 
-            success: false, 
-            error: `Invalid current price ${outcomePrice} for outcome "${position.side}"` 
+          return {
+            success: false,
+            error: `Invalid current price ${outcomePrice} for outcome "${position.side}"`
           };
         }
       } catch (e) {
-        return { 
-          success: false, 
-          error: `Failed to parse multi-outcome prices: ${e instanceof Error ? e.message : String(e)}` 
+        return {
+          success: false,
+          error: `Failed to parse multi-outcome prices: ${e instanceof Error ? e.message : String(e)}`
         };
       }
     }
-    
+
     // Calculate proceeds and cost basis
     const proceeds = sharesToSell * currentPrice;
+
+    // Guard against division by zero (should never happen due to earlier validation)
+    if (position.shares <= 0) {
+      return { success: false, error: `Invalid position: shares is ${position.shares}` };
+    }
     const costBasisSold = (sharesToSell / position.shares) * position.total_cost;
     const realizedPnL = proceeds - costBasisSold;
-    
-    // Record trade with P/L tracking
-    const trade = createTrade({
-      agent_id: agentId,
-      market_id: market.id,
-      position_id: position.id,
-      decision_id: decisionId,
-      trade_type: 'SELL',
-      side: position.side,
-      shares: sharesToSell,
-      price: currentPrice,
-      total_amount: proceeds,
-      cost_basis: costBasisSold,
-      realized_pnl: realizedPnL
+
+    // Execute all database operations in a transaction for atomicity
+    const trade = withTransaction(() => {
+      // Record trade with P/L tracking
+      const tradeRecord = createTrade({
+        agent_id: agentId,
+        market_id: market.id,
+        position_id: position.id,
+        decision_id: decisionId,
+        trade_type: 'SELL',
+        side: position.side,
+        shares: sharesToSell,
+        price: currentPrice,
+        total_amount: proceeds,
+        cost_basis: costBasisSold,
+        realized_pnl: realizedPnL
+      });
+
+      // Reduce position
+      reducePosition(position.id, sharesToSell);
+
+      // Update agent balance
+      const newCashBalance = agent.cash_balance + proceeds;
+      const newTotalInvested = agent.total_invested - costBasisSold;
+      updateAgentBalance(agentId, newCashBalance, Math.max(0, newTotalInvested));
+
+      return tradeRecord;
     });
-    
-    // Reduce position
-    reducePosition(position.id, sharesToSell);
-    
-    // Update agent balance
-    const newCashBalance = agent.cash_balance + proceeds;
-    const newTotalInvested = agent.total_invested - costBasisSold;
-    updateAgentBalance(agentId, newCashBalance, Math.max(0, newTotalInvested));
-    
+
+    // Log after successful transaction (outside transaction to avoid rollback on log failure)
     logSystemEvent('trade_executed', {
       agent_id: agentId,
       trade_id: trade.id,
@@ -300,14 +342,14 @@ export function executeSell(
       cost_basis: costBasisSold,
       realized_pnl: realizedPnL
     });
-    
+
     return {
       success: true,
       trade_id: trade.id,
       proceeds,
       shares_sold: sharesToSell
     };
-    
+
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     logSystemEvent('trade_error', { agent_id: agentId, error: message }, 'error');

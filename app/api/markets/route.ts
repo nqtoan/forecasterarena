@@ -1,27 +1,28 @@
 /**
  * Markets List API Endpoint
- * 
+ *
  * Returns paginated list of markets with filtering options.
- * 
+ *
  * @route GET /api/markets
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
+import { parseIntParam, safeErrorMessage } from '@/lib/utils/security';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
+
     const status = searchParams.get('status') || 'active';
     const category = searchParams.get('category');
     const search = searchParams.get('search');
     const sort = searchParams.get('sort') || 'volume';
     const withCohortBets = searchParams.get('cohort_bets') === 'true';
-    const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
-    const offset = parseInt(searchParams.get('offset') || '0');
+    const limit = parseIntParam(searchParams.get('limit'), 50, 100);
+    const offset = parseIntParam(searchParams.get('offset'), 0);
     
     const db = getDb();
     
@@ -116,7 +117,7 @@ export async function GET(request: NextRequest) {
       markets_with_positions: number;
     };
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       markets,
       total,
       has_more: offset + limit < total,
@@ -129,10 +130,13 @@ export async function GET(request: NextRequest) {
       },
       updated_at: new Date().toISOString()
     });
+
+    // Cache for 5 minutes - markets data doesn't change frequently
+    response.headers.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=60');
+    return response;
     
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: safeErrorMessage(error) }, { status: 500 });
   }
 }
 

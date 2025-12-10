@@ -6,7 +6,7 @@
  * @module engine/resolution
  */
 
-import { logSystemEvent } from '../db';
+import { logSystemEvent, withTransaction } from '../db';
 import {
   getClosedMarkets,
   getMarketByPolymarketId,
@@ -35,7 +35,10 @@ export interface ResolutionCheckResult {
 
 /**
  * Settle a single position after market resolution
- * 
+ *
+ * All database operations are wrapped in a transaction to ensure atomicity.
+ * If any operation fails, all changes are rolled back.
+ *
  * @param position - Position to settle
  * @param market - Resolved market
  * @param winningOutcome - The winning outcome
@@ -51,25 +54,29 @@ function settlePositionForMarket(
     position.side,
     winningOutcome
   );
-  
+
   // Get agent
   const agent = getAgentById(position.agent_id);
   if (!agent) {
     console.error(`Agent not found for position ${position.id}`);
     return;
   }
-  
-  // Update agent balance
-  const newCashBalance = agent.cash_balance + settlementValue;
-  const newTotalInvested = Math.max(0, agent.total_invested - position.total_cost);
-  updateAgentBalance(position.agent_id, newCashBalance, newTotalInvested);
-  
-  // Mark position as settled
-  settlePosition(position.id);
-  
+
   // Calculate P/L
   const pnl = settlementValue - position.total_cost;
-  
+
+  // Execute all database operations in a transaction for atomicity
+  withTransaction(() => {
+    // Update agent balance
+    const newCashBalance = agent.cash_balance + settlementValue;
+    const newTotalInvested = Math.max(0, agent.total_invested - position.total_cost);
+    updateAgentBalance(position.agent_id, newCashBalance, newTotalInvested);
+
+    // Mark position as settled
+    settlePosition(position.id);
+  });
+
+  // Log after successful transaction (outside transaction to avoid rollback on log failure)
   logSystemEvent('position_settled', {
     position_id: position.id,
     agent_id: position.agent_id,
@@ -80,7 +87,7 @@ function settlePositionForMarket(
     cost_basis: position.total_cost,
     pnl
   });
-  
+
   console.log(
     `Settled position ${position.id}: ` +
     `${position.side} on "${market.question.slice(0, 50)}..." → ` +
@@ -215,16 +222,23 @@ async function checkMarketResolution(market: Market): Promise<boolean> {
     
     // Check if resolved
     const resolution = checkResolution(polymarketData);
-    
+
     if (!resolution.resolved) {
       return false;
     }
-    
-    if (!resolution.winner) {
-      console.log(`Market ${market.id} resolved but no winner found`);
+
+    // Handle UNKNOWN winner case - log for manual review, skip settlement
+    if (!resolution.winner || resolution.winner === 'UNKNOWN') {
+      logSystemEvent('resolution_unknown_winner', {
+        market_id: market.id,
+        polymarket_id: market.polymarket_id,
+        question: market.question.slice(0, 100),
+        error: resolution.error || 'Winner could not be determined'
+      }, 'error');
+      console.error(`Market ${market.id} resolved but winner could not be determined - requires manual review`);
       return false;
     }
-    
+
     // Update market in our database
     resolveMarket(market.id, resolution.winner);
     
@@ -307,27 +321,39 @@ export async function checkAllResolutions(): Promise<ResolutionCheckResult> {
 
 /**
  * Handle a cancelled market (refund all positions)
- * 
+ *
+ * All database operations are wrapped in a transaction to ensure atomicity.
+ * Either all refunds succeed or all are rolled back.
+ *
  * @param marketId - Market that was cancelled
  */
 export function handleCancelledMarket(marketId: string): void {
   const market = getMarketByPolymarketId(marketId);
   if (!market) return;
-  
+
   const positions = getPositionsByMarket(market.id);
-  
+
+  // Execute all refunds in a single transaction for atomicity
+  withTransaction(() => {
+    for (const position of positions) {
+      const agent = getAgentById(position.agent_id);
+      if (!agent) continue;
+
+      // Refund full cost basis
+      const newCashBalance = agent.cash_balance + position.total_cost;
+      const newTotalInvested = Math.max(0, agent.total_invested - position.total_cost);
+      updateAgentBalance(position.agent_id, newCashBalance, newTotalInvested);
+
+      // Close position (no settlement value)
+      settlePosition(position.id);
+    }
+
+    // Update market status
+    resolveMarket(market.id, 'CANCELLED');
+  });
+
+  // Log after successful transaction (outside transaction to avoid rollback on log failure)
   for (const position of positions) {
-    const agent = getAgentById(position.agent_id);
-    if (!agent) continue;
-    
-    // Refund full cost basis
-    const newCashBalance = agent.cash_balance + position.total_cost;
-    const newTotalInvested = Math.max(0, agent.total_invested - position.total_cost);
-    updateAgentBalance(position.agent_id, newCashBalance, newTotalInvested);
-    
-    // Close position (no settlement value)
-    settlePosition(position.id);
-    
     logSystemEvent('position_refunded', {
       position_id: position.id,
       agent_id: position.agent_id,
@@ -335,10 +361,7 @@ export function handleCancelledMarket(marketId: string): void {
       refund_amount: position.total_cost
     });
   }
-  
-  // Update market status
-  resolveMarket(market.id, 'CANCELLED');
-  
+
   logSystemEvent('market_cancelled', {
     market_id: market.id,
     positions_refunded: positions.length

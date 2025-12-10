@@ -75,7 +75,8 @@ export interface SimplifiedMarket {
  */
 export interface MarketResolution {
   resolved: boolean;
-  winner?: string;               // 'YES', 'NO', or outcome name
+  winner?: string;               // 'YES', 'NO', 'UNKNOWN', or outcome name
+  error?: string;                // Error message if winner could not be determined
 }
 
 /**

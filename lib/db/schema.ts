@@ -328,10 +328,24 @@ CREATE INDEX IF NOT EXISTS idx_markets_polymarket ON markets(polymarket_id);
 CREATE INDEX IF NOT EXISTS idx_markets_category ON markets(category);
 CREATE INDEX IF NOT EXISTS idx_markets_volume ON markets(volume DESC);
 CREATE INDEX IF NOT EXISTS idx_markets_close_date ON markets(close_date);
+CREATE INDEX IF NOT EXISTS idx_markets_status_resolved ON markets(status, resolved_at DESC);
+
+-- Additional composite indexes for optimized queries
+CREATE INDEX IF NOT EXISTS idx_agents_status_balance ON agents(status, cash_balance DESC);
+CREATE INDEX IF NOT EXISTS idx_positions_agent_market ON positions(agent_id, market_id);
 
 -- Brier Scores
 CREATE INDEX IF NOT EXISTS idx_brier_agent ON brier_scores(agent_id);
 CREATE INDEX IF NOT EXISTS idx_brier_market ON brier_scores(market_id);
+
+-- API Costs
+CREATE INDEX IF NOT EXISTS idx_api_costs_recorded ON api_costs(recorded_at DESC);
+CREATE INDEX IF NOT EXISTS idx_api_costs_model ON api_costs(model_id);
+
+-- Additional composite indexes for optimized queries
+CREATE INDEX IF NOT EXISTS idx_trades_market_executed ON trades(market_id, executed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_positions_agent_market_status ON positions(agent_id, market_id, status);
+CREATE INDEX IF NOT EXISTS idx_decisions_agent_week ON decisions(agent_id, decision_week);
 
 -- System Logs
 CREATE INDEX IF NOT EXISTS idx_logs_type ON system_logs(event_type);

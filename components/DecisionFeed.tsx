@@ -63,8 +63,18 @@ export default function DecisionFeed({
     }
   }, [limit, autoRefresh, initialDecisions]);
 
+  /**
+   * Parse UTC timestamp from DB format (YYYY-MM-DD HH:MM:SS) or ISO 8601
+   */
+  function parseUTCTimestamp(dateStr: string): Date {
+    if (dateStr.includes('Z') || /[+-]\d{2}:?\d{2}$/.test(dateStr)) {
+      return new Date(dateStr);
+    }
+    return new Date(dateStr.replace(' ', 'T') + 'Z');
+  }
+
   function formatTime(dateStr: string): string {
-    const date = new Date(dateStr);
+    const date = parseUTCTimestamp(dateStr);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
 

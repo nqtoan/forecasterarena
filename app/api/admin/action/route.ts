@@ -8,41 +8,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { ADMIN_PASSWORD, CRON_SECRET } from '@/lib/constants';
 import { maybeStartNewCohort } from '@/lib/engine/cohort';
 import { syncMarkets } from '@/lib/engine/market';
 import { logSystemEvent } from '@/lib/db';
-import { checkAndCompleteCohorts } from '@/lib/engine/cohort';
+import { isAuthenticated } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
-
-import { createHmac } from 'crypto';
-
-function isAuthenticated(): boolean {
-    try {
-        const cookieStore = cookies();
-        const tokenCookie = cookieStore.get('forecaster_admin');
-
-        if (!tokenCookie?.value) return false;
-
-        const decoded = Buffer.from(tokenCookie.value, 'base64').toString('utf8');
-        const parts = decoded.split(':');
-
-        if (parts.length !== 3) return false;
-
-        const [role, timestamp, signature] = parts;
-
-        if (role !== 'admin') return false;
-
-        const payload = `${role}:${timestamp}`;
-        const expectedSignature = createHmac('sha256', ADMIN_PASSWORD).update(payload).digest('hex');
-
-        return signature === expectedSignature;
-    } catch {
-        return false;
-    }
-}
 
 export async function POST(request: NextRequest) {
     if (!isAuthenticated()) {

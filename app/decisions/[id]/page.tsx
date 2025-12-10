@@ -57,6 +57,26 @@ export default function DecisionPage() {
         fetchData();
     }, [id]);
 
+    /**
+     * Parse UTC timestamp from DB format (YYYY-MM-DD HH:MM:SS) or ISO 8601
+     */
+    function parseUTCTimestamp(dateStr: string): Date {
+        if (dateStr.includes('Z') || /[+-]\d{2}:?\d{2}$/.test(dateStr)) {
+            return new Date(dateStr);
+        }
+        return new Date(dateStr.replace(' ', 'T') + 'Z');
+    }
+
+    function formatDateTime(dateStr: string): string {
+        return parseUTCTimestamp(dateStr).toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit'
+        });
+    }
+
     if (loading) {
         return (
             <div className="container-wide mx-auto px-6 py-20 text-center text-[var(--text-muted)]">
@@ -115,7 +135,7 @@ export default function DecisionPage() {
                         <p className="text-sm text-[var(--text-muted)]">{decision.model_provider}</p>
                     </div>
                     <div className="ml-auto text-sm text-[var(--text-muted)]">
-                        {new Date(decision.created_at).toLocaleString()}
+                        {formatDateTime(decision.created_at)}
                     </div>
                 </div>
 

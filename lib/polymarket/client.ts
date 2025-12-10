@@ -227,8 +227,9 @@ export function checkResolution(market: PolymarketMarket): MarketResolution {
   }
 
   // Market is resolved but we couldn't determine winner
-  console.warn(`Market ${market.id} is resolved but winner could not be determined`);
-  return { resolved: false };
+  // Return resolved: true with error so resolution engine can log and handle this case
+  console.error(`Market ${market.id} is resolved but winner could not be determined`);
+  return { resolved: true, winner: 'UNKNOWN', error: 'Winner could not be determined from market data' };
 }
 
 /**

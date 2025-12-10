@@ -6,7 +6,7 @@
  * @module engine/cohort
  */
 
-import { logSystemEvent } from '../db';
+import { logSystemEvent, withTransaction } from '../db';
 import {
   createCohort as dbCreateCohort,
   createAgentsForCohort,
@@ -15,7 +15,9 @@ import {
   completeCohort,
   getAgentsByCohort,
   getOpenPositions,
-  getTotalDecisionsForCohort
+  getTotalDecisionsForCohort,
+  getCohortCompletionStatus,
+  getCohortForCurrentWeek
 } from '../db/queries';
 import type { Cohort, Agent } from '../types';
 
@@ -56,32 +58,37 @@ export function shouldStartNewCohort(): boolean {
 export function startNewCohort(): StartCohortResult {
   try {
     console.log('Starting new cohort...');
-    
-    // Create cohort
-    const cohort = dbCreateCohort();
-    
-    // Create agents for all models
-    const agents = createAgentsForCohort(cohort.id);
-    
-    logSystemEvent('cohort_started', {
-      cohort_id: cohort.id,
-      cohort_number: cohort.cohort_number,
-      num_agents: agents.length
+
+    // Wrap cohort and agent creation in a transaction for atomicity
+    const result = withTransaction(() => {
+      // Create cohort
+      const cohort = dbCreateCohort();
+
+      // Create agents for all models
+      const agents = createAgentsForCohort(cohort.id);
+
+      logSystemEvent('cohort_started', {
+        cohort_id: cohort.id,
+        cohort_number: cohort.cohort_number,
+        num_agents: agents.length
+      });
+
+      return { cohort, agents };
     });
-    
-    console.log(`Cohort #${cohort.cohort_number} started with ${agents.length} agents`);
-    
+
+    console.log(`Cohort #${result.cohort.cohort_number} started with ${result.agents.length} agents`);
+
     return {
       success: true,
-      cohort,
-      agents
+      cohort: result.cohort,
+      agents: result.agents
     };
-    
+
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    
+
     logSystemEvent('cohort_start_error', { error: message }, 'error');
-    
+
     return {
       success: false,
       error: message
@@ -99,23 +106,16 @@ export function startNewCohort(): StartCohortResult {
  * @returns True if all positions are settled
  */
 export function isCohortComplete(cohortId: string): boolean {
-  const agents = getAgentsByCohort(cohortId);
-  
-  for (const agent of agents) {
-    const openPositions = getOpenPositions(agent.id);
-    if (openPositions.length > 0) {
-      return false;
-    }
-  }
-  
-  // Additional check: ensure at least some trading activity occurred
+  // Use optimized single query instead of N+1 pattern
+  const status = getCohortCompletionStatus(cohortId);
+
   // A cohort with no trades shouldn't be auto-completed
-  const totalDecisions = getTotalDecisionsForCohort(cohortId);
-  if (totalDecisions === 0) {
+  if (status.total_decisions === 0) {
     return false;
   }
-  
-  return true;
+
+  // Cohort is complete when all positions are settled (no open positions)
+  return status.open_positions === 0;
 }
 
 /**
@@ -148,7 +148,9 @@ export function checkAndCompleteCohorts(): number {
 
 /**
  * Get cohort summary statistics
- * 
+ *
+ * Uses single-query approach to avoid N+1 queries.
+ *
  * @param cohortId - Cohort to summarize
  * @returns Summary object
  */
@@ -163,43 +165,54 @@ export function getCohortStats(cohortId: string): {
 } | null {
   const cohort = getCohortById(cohortId);
   if (!cohort) return null;
-  
+
   const agents = getAgentsByCohort(cohortId);
-  
-  let openPositions = 0;
-  
-  for (const agent of agents) {
-    openPositions += getOpenPositions(agent.id).length;
-  }
-  
+
+  // Use optimized single-query function instead of N+1 pattern
+  const completionStatus = getCohortCompletionStatus(cohortId);
+
   return {
     cohort_id: cohort.id,
     cohort_number: cohort.cohort_number,
     num_agents: agents.length,
     active_agents: agents.filter(a => a.status === 'active').length,
     bankrupt_agents: agents.filter(a => a.status === 'bankrupt').length,
-    open_positions: openPositions,
-    total_trades: 0 // Would need to query trades table
+    open_positions: completionStatus.open_positions,
+    total_trades: completionStatus.total_decisions
   };
 }
 
 /**
  * Maybe start a new cohort (if conditions are met)
- * 
+ *
  * This is a safe wrapper that checks conditions before starting.
  * Used by the cron job to prevent duplicate cohorts.
- * 
+ *
+ * Idempotency: If a cohort already exists for this week, returns it instead of creating a new one.
+ *
  * @param force - Force start regardless of day
  * @returns Result
  */
 export function maybeStartNewCohort(force: boolean = false): StartCohortResult {
+  // Check for existing cohort this week (idempotency check)
+  const existingCohort = getCohortForCurrentWeek();
+  if (existingCohort) {
+    console.log(`Cohort #${existingCohort.cohort_number} already exists for this week`);
+    const agents = getAgentsByCohort(existingCohort.id);
+    return {
+      success: true,
+      cohort: existingCohort,
+      agents
+    };
+  }
+
   if (!force && !shouldStartNewCohort()) {
     return {
       success: false,
       error: 'Not Sunday or outside start window'
     };
   }
-  
+
   return startNewCohort();
 }
 

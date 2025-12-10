@@ -49,3 +49,41 @@ export function verifyAdminPassword(providedPassword: string, expectedPassword: 
   return constantTimeCompare(providedPassword, expectedPassword);
 }
 
+/**
+ * Return a safe error message for API responses
+ *
+ * In production, returns a generic message to avoid leaking internal details.
+ * In development, returns the actual error message for debugging.
+ *
+ * @param error The error to process
+ * @returns Safe error message string
+ */
+export function safeErrorMessage(error: unknown): string {
+  if (process.env.NODE_ENV === 'production') {
+    return 'An internal error occurred';
+  }
+  return error instanceof Error ? error.message : String(error);
+}
+
+/**
+ * Parse an integer query parameter with validation
+ *
+ * Returns the default value if:
+ * - Value is null/undefined
+ * - Value is not a valid integer
+ * - Value is negative
+ *
+ * Optionally caps the value at a maximum.
+ *
+ * @param value The string value to parse
+ * @param defaultValue Default if invalid
+ * @param max Optional maximum value
+ * @returns Validated integer
+ */
+export function parseIntParam(value: string | null, defaultValue: number, max?: number): number {
+  if (!value) return defaultValue;
+  const parsed = parseInt(value, 10);
+  if (!Number.isInteger(parsed) || parsed < 0) return defaultValue;
+  return max !== undefined ? Math.min(parsed, max) : parsed;
+}
+
