@@ -12,7 +12,7 @@ import { CRON_SECRET, INITIAL_BALANCE } from '@/lib/constants';
 import {
   getActiveCohorts,
   getAgentsByCohort,
-  getOpenPositions,
+  getAllOpenPositions,
   getMarketById,
   updatePositionMTM,
   createPortfolioSnapshot,
@@ -59,7 +59,8 @@ export async function POST(request: NextRequest) {
       for (const agent of agents) {
         try {
           // Get and update positions MTM
-          const positions = getOpenPositions(agent.id);
+          // Use all open positions (including on closed/unresolved markets) so valuation isn't lost when trading closes.
+          const positions = getAllOpenPositions(agent.id);
           let positionsValue = 0;
           const fallbackFromPosition = (pos: typeof positions[number]) => {
             if (pos.current_value && pos.shares > 0) {
