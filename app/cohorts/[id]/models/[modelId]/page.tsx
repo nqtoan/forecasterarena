@@ -83,6 +83,26 @@ interface Position {
   opening_decision_id?: string;
 }
 
+interface ClosedPosition {
+  id: string;
+  market_id: string;
+  market_question: string;
+  side: string;
+  shares: number;
+  avg_entry_price: number;
+  total_cost: number;
+  position_status: string;
+  market_status: string;
+  resolution_outcome: string | null;
+  outcome: 'WON' | 'LOST' | 'EXITED' | 'CANCELLED' | 'PENDING' | 'UNKNOWN';
+  settlement_value: number | null;
+  pnl: number | null;
+  opened_at: string;
+  closed_at: string | null;
+  resolved_at: string | null;
+  opening_decision_id?: string;
+}
+
 interface Trade {
   id: string;
   timestamp: string;
@@ -105,6 +125,7 @@ interface AgentCohortData {
   equity_curve: EquityPoint[];
   decisions: Decision[];
   positions: Position[];
+  closed_positions: ClosedPosition[];
   trades: Trade[];
 }
 
@@ -505,8 +526,8 @@ export default function AgentCohortDetailPage() {
         )}
       </div>
 
-      {/* Positions and Trades Tables */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* Positions Tables: Open + Closed */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Open Positions */}
         <div className="glass-card p-6">
           <h3 className="text-lg font-semibold mb-4">
@@ -565,60 +586,128 @@ export default function AgentCohortDetailPage() {
           )}
         </div>
 
-        {/* Trade History */}
+        {/* Closed Positions */}
         <div className="glass-card p-6">
           <h3 className="text-lg font-semibold mb-4">
-            Trade History ({data.stats.trade_count})
+            Closed Positions ({data.closed_positions.length})
           </h3>
 
-          {data.trades.length === 0 ? (
+          {data.closed_positions.length === 0 ? (
             <p className="text-[var(--text-muted)] text-center py-8">
-              No trades yet
+              No closed positions
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Date</th>
-                    <th>Type</th>
+                    <th>Market</th>
                     <th>Side</th>
-                    <th className="text-right">Amount</th>
-                    <th className="text-right">Week</th>
+                    <th className="text-right">Outcome</th>
+                    <th className="text-right">P/L</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {data.trades.slice(0, 20).map((trade) => (
-                    <tr
-                      key={trade.id}
-                      onClick={() => trade.decision_id && (window.location.href = `/decisions/${trade.decision_id}`)}
-                      className={trade.decision_id ? 'cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors' : ''}
-                      title={trade.decision_id ? 'Click to view decision rationale' : undefined}
-                    >
-                      <td className="text-sm">{formatDate(trade.timestamp)}</td>
-                      <td>
-                        <span className={`text-xs px-2 py-0.5 rounded ${
-                          trade.trade_type === 'BUY' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'
-                        }`}>
-                          {trade.trade_type}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`text-xs px-2 py-0.5 rounded ${
-                          trade.side === 'YES' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                        }`}>
-                          {trade.side}
-                        </span>
-                      </td>
-                      <td className="text-right font-mono">{formatCurrency(trade.total_amount)}</td>
-                      <td className="text-right text-[var(--text-muted)]">{trade.decision_week}</td>
-                    </tr>
-                  ))}
+                  {data.closed_positions.map((position) => {
+                    const pnl = position.pnl || 0;
+                    const outcomeColors = {
+                      'WON': 'bg-green-500/20 text-green-400',
+                      'LOST': 'bg-red-500/20 text-red-400',
+                      'EXITED': 'bg-blue-500/20 text-blue-400',
+                      'CANCELLED': 'bg-gray-500/20 text-gray-400',
+                      'PENDING': 'bg-yellow-500/20 text-yellow-400',
+                      'UNKNOWN': 'bg-gray-500/20 text-gray-400'
+                    };
+
+                    return (
+                      <tr
+                        key={position.id}
+                        onClick={() => position.opening_decision_id && (window.location.href = `/decisions/${position.opening_decision_id}`)}
+                        className={position.opening_decision_id ? 'cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors' : ''}
+                        title={position.opening_decision_id ? 'Click to view opening decision rationale' : undefined}
+                      >
+                        <td className="max-w-[150px] truncate" title={position.market_question}>
+                          {position.market_question}
+                        </td>
+                        <td>
+                          <span className={`text-xs px-2 py-0.5 rounded ${
+                            position.side === 'YES' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                          }`}>
+                            {position.side}
+                          </span>
+                        </td>
+                        <td className="text-right">
+                          <span className={`text-xs px-2 py-0.5 rounded ${outcomeColors[position.outcome]}`}>
+                            {position.outcome}
+                          </span>
+                        </td>
+                        <td className={`text-right font-mono text-sm ${pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
+                          {position.outcome === 'PENDING' ? '-' : formatPnL(pnl)}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           )}
         </div>
+
+      </div>
+
+      {/* Trade History (full row) */}
+      <div className="glass-card p-6 mb-8">
+        <h3 className="text-lg font-semibold mb-4">
+          Trade History ({data.stats.trade_count})
+        </h3>
+
+        {data.trades.length === 0 ? (
+          <p className="text-[var(--text-muted)] text-center py-8">
+            No trades yet
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Side</th>
+                  <th className="text-right">Amount</th>
+                  <th className="text-right">Week</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.trades.slice(0, 20).map((trade) => (
+                  <tr
+                    key={trade.id}
+                    onClick={() => trade.decision_id && (window.location.href = `/decisions/${trade.decision_id}`)}
+                    className={trade.decision_id ? 'cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors' : ''}
+                    title={trade.decision_id ? 'Click to view decision rationale' : undefined}
+                  >
+                    <td className="text-sm">{formatDate(trade.timestamp)}</td>
+                    <td>
+                      <span className={`text-xs px-2 py-0.5 rounded ${
+                        trade.trade_type === 'BUY' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'
+                      }`}>
+                        {trade.trade_type}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`text-xs px-2 py-0.5 rounded ${
+                        trade.side === 'YES' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {trade.side}
+                      </span>
+                    </td>
+                    <td className="text-right font-mono">{formatCurrency(trade.total_amount)}</td>
+                    <td className="text-right text-[var(--text-muted)]">{trade.decision_week}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Decision Detail Modal */}
