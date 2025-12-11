@@ -71,80 +71,85 @@ export async function POST(request: NextRequest) {
             return null;
           };
           
-          for (const position of positions) {
-            const market = getMarketById(position.market_id);
-            if (!market) continue;
+        for (const position of positions) {
+          const market = getMarketById(position.market_id);
+          if (!market) continue;
 
-            // Calculate current value based on market type
-            let currentPrice: number;
-            const isBinary = market.market_type === 'binary';
+          // Calculate current value based on market type
+          let currentPrice: number | null = null;
+          const isBinary = market.market_type === 'binary';
 
-            if (isBinary) {
-              // Binary market: use current_price for YES, (1 - price) for NO
-              if (typeof market.current_price === 'number' && !Number.isNaN(market.current_price)) {
-                currentPrice = market.current_price;
+          if (isBinary) {
+            // Binary market: use current_price for YES, (1 - price) for NO
+            if (typeof market.current_price === 'number' && !Number.isNaN(market.current_price)) {
+              currentPrice = market.current_price;
+            } else {
+              const fallbackPrice = fallbackFromPosition(position);
+              if (fallbackPrice === null) {
+                console.warn(
+                  `[Snapshot] Missing price for market ${market.id}; keeping prior value for position ${position.id}`
+                );
+                currentPrice = null;
               } else {
-                const fallbackPrice = fallbackFromPosition(position);
-                if (fallbackPrice === null) {
-                  console.warn(
-                    `[Snapshot] Missing price for market ${market.id}; keeping prior value for position ${position.id}`
-                  );
-                  positionsValue += position.current_value || 0;
-                  continue;
-                }
                 currentPrice = fallbackPrice;
                 console.warn(
                   `[Snapshot] Using fallback price ${fallbackPrice.toFixed(4)} for market ${market.id} from prior value`
                 );
               }
-            } else {
-              // Multi-outcome market: parse prices from JSON
-              try {
-                const prices = JSON.parse(market.current_prices || '{}');
-                const outcomePrice = prices[position.side];
+            }
+          } else {
+            // Multi-outcome market: parse prices from JSON
+            try {
+              const prices = JSON.parse(market.current_prices || '{}');
+              const outcomePrice = prices[position.side];
 
-                if (outcomePrice === undefined || outcomePrice === null) {
-                  const fallbackPrice = fallbackFromPosition(position);
-                  if (fallbackPrice === null) {
-                    console.warn(
-                      `[Snapshot] No price for outcome "${position.side}" in market ${market.id}; keeping prior value`
-                    );
-                    positionsValue += position.current_value || 0;
-                    continue;
-                  }
+              if (outcomePrice === undefined || outcomePrice === null) {
+                const fallbackPrice = fallbackFromPosition(position);
+                if (fallbackPrice === null) {
+                  console.warn(
+                    `[Snapshot] No price for outcome "${position.side}" in market ${market.id}; keeping prior value`
+                  );
+                  currentPrice = null;
+                } else {
                   currentPrice = fallbackPrice;
                   console.warn(
                     `[Snapshot] Using fallback price ${fallbackPrice.toFixed(4)} for outcome "${position.side}" in market ${market.id}`
                   );
-                } else {
-                  currentPrice = parseFloat(outcomePrice);
-                  if (isNaN(currentPrice) || currentPrice < 0 || currentPrice > 1) {
-                    const fallbackPrice = fallbackFromPosition(position);
-                    if (fallbackPrice === null) {
-                      console.warn(
-                        `[Snapshot] Invalid price ${outcomePrice} for "${position.side}" in market ${market.id}; keeping prior value`
-                      );
-                      positionsValue += position.current_value || 0;
-                      continue;
-                    }
+                }
+              } else {
+                currentPrice = parseFloat(outcomePrice);
+                if (isNaN(currentPrice) || currentPrice < 0 || currentPrice > 1) {
+                  const fallbackPrice = fallbackFromPosition(position);
+                  if (fallbackPrice === null) {
+                    console.warn(
+                      `[Snapshot] Invalid price ${outcomePrice} for "${position.side}" in market ${market.id}; keeping prior value`
+                    );
+                    currentPrice = null;
+                  } else {
                     currentPrice = fallbackPrice;
                     console.warn(
                       `[Snapshot] Using fallback price ${fallbackPrice.toFixed(4)} for invalid outcome price in market ${market.id}`
                     );
                   }
                 }
-              } catch (e) {
-                console.warn(`[Snapshot] Failed to parse prices for market ${market.id}; keeping prior value`);
-                positionsValue += position.current_value || 0;
-                continue;
               }
+            } catch (e) {
+              console.warn(`[Snapshot] Failed to parse prices for market ${market.id}; keeping prior value`);
+              currentPrice = null;
             }
+          }
 
-            const value = calculatePositionValue(
-              position.shares,
-              position.side,
-              currentPrice
-            );
+          // Fallback if still null: derive from prior value or default 0.5
+          if (currentPrice === null) {
+            const derived = fallbackFromPosition(position);
+            currentPrice = derived !== null ? derived : 0.5;
+          }
+
+          const value = calculatePositionValue(
+            position.shares,
+            position.side,
+            currentPrice
+          );
             const unrealizedPnl = value - position.total_cost;
 
             // Update position MTM
