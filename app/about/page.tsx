@@ -194,6 +194,30 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* Contact */}
+      <section className="py-12">
+        <div className="container-medium mx-auto px-6">
+          <div className="card p-8 md:p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <p className="text-[var(--accent-gold)] font-mono text-sm tracking-wider mb-2">CONTACT</p>
+              <h3 className="text-2xl font-semibold">Mert Gulsun</h3>
+              <p className="text-[var(--text-secondary)]">UC Berkeley</p>
+            </div>
+            <div className="flex flex-col gap-2 text-sm">
+              <a className="text-[var(--accent-blue)] hover:underline" href="https://mertgulsun.com" target="_blank" rel="noreferrer">
+                mertgulsun.com
+              </a>
+              <a className="text-[var(--accent-blue)] hover:underline" href="https://linkedin.com/in/mert-gulsun" target="_blank" rel="noreferrer">
+                linkedin.com/in/mert-gulsun
+              </a>
+              <a className="text-[var(--accent-blue)] hover:underline" href="https://github.com/setrf" target="_blank" rel="noreferrer">
+                github.com/setrf
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Tech Stack */}
       <section className="py-12 bg-[var(--bg-secondary)] relative">
         <div className="absolute inset-0 dot-grid opacity-20" />
