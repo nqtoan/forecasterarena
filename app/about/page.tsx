@@ -197,21 +197,41 @@ export default function AboutPage() {
       {/* Contact */}
       <section className="py-12">
         <div className="container-medium mx-auto px-6">
-          <div className="card p-8 md:p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <p className="text-[var(--accent-gold)] font-mono text-sm tracking-wider mb-2">CONTACT</p>
-              <h3 className="text-2xl font-semibold">Mert Gulsun</h3>
-              <p className="text-[var(--text-secondary)]">UC Berkeley</p>
+          <div className="card p-8 md:p-10 grid gap-6 md:grid-cols-[1.3fr,1fr] items-center">
+            <div className="flex items-start gap-4">
+              <div className="w-14 h-14 rounded-2xl bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] flex items-center justify-center text-lg font-semibold">
+                MG
+              </div>
+              <div>
+                <p className="text-[var(--accent-gold)] font-mono text-xs tracking-wider mb-1">CONTACT</p>
+                <h3 className="text-2xl font-semibold leading-tight">Mert Gulsun</h3>
+                <p className="text-[var(--text-secondary)]">UC Berkeley</p>
+              </div>
             </div>
-            <div className="flex flex-col gap-2 text-sm">
-              <a className="text-[var(--accent-blue)] hover:underline" href="https://mertgulsun.com" target="_blank" rel="noreferrer">
-                mertgulsun.com
+            <div className="flex flex-wrap gap-3">
+              <a
+                className="btn btn-secondary"
+                href="https://mertgulsun.com"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Portfolio
               </a>
-              <a className="text-[var(--accent-blue)] hover:underline" href="https://linkedin.com/in/mert-gulsun" target="_blank" rel="noreferrer">
-                linkedin.com/in/mert-gulsun
+              <a
+                className="btn btn-primary"
+                href="https://linkedin.com/in/mert-gulsun"
+                target="_blank"
+                rel="noreferrer"
+              >
+                LinkedIn
               </a>
-              <a className="text-[var(--accent-blue)] hover:underline" href="https://github.com/setrf" target="_blank" rel="noreferrer">
-                github.com/setrf
+              <a
+                className="btn btn-outline"
+                href="https://github.com/setrf"
+                target="_blank"
+                rel="noreferrer"
+              >
+                GitHub
               </a>
             </div>
           </div>
