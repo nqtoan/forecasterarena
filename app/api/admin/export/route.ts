@@ -189,7 +189,7 @@ async function handlePost(request: NextRequest) {
   }
 
   const tables = (tablesInput && tablesInput.length > 0 ? tablesInput : DEFAULT_TABLES)
-    .filter((t) => DEFAULT_TABLES.includes(t));
+    .filter((t: string) => DEFAULT_TABLES.includes(t));
 
   if (tables.length === 0) {
     return NextResponse.json({ error: 'No valid tables requested' }, { status: 400 });
