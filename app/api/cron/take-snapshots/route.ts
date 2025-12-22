@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
           // Use all open positions (including on closed/unresolved markets) so valuation isn't lost when trading closes.
          // const positions = getAllOpenPositions(agent.id);
           let positionsValue = 0;
-          const fallbackFromPosition = (pos: typeof positions[number]) => {
+          const fallbackFromPosition = (pos: any) => {
             if (!pos || pos.shares <= 0 || pos.current_value === null || pos.current_value === undefined) {
               return null;
             }
