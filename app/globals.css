@@ -5,45 +5,47 @@
 @tailwind utilities;
 
 :root {
-  /* Refined dark theme */
-  --bg-primary: #050508;
-  --bg-secondary: #0c0c12;
-  --bg-tertiary: #14141d;
-  --bg-card: #0f0f16;
-  --bg-elevated: #1a1a24;
-  --bg-hover: #1e1e2a;
+  /* Dark theme - matching UI-demo */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #171717;
+  --bg-tertiary: #262626;
+  --bg-card: #171717;
+  --bg-elevated: #252527;
+  --bg-hover: #262626;
   
-  --text-primary: #fafafc;
-  --text-secondary: #94949f;
-  --text-muted: #5c5c66;
+  --text-primary: #fafafa;
+  --text-secondary: #b7b7b7;
+  --text-muted: #737373;
   
-  /* Signature accent - warm gold */
-  --accent-gold: #d4a853;
-  --accent-gold-dim: rgba(212, 168, 83, 0.15);
+  /* Primary accent - orange (matching UI-demo #FF5800) */
+  --accent-gold: #FF5800;
+  --accent-gold-dim: rgba(255, 88, 0, 0.15);
+  --accent-primary: #FF5800;
+  --accent-primary-dim: rgba(255, 88, 0, 0.1);
   
-  /* Model accent colors - more saturated */
-  --accent-emerald: #00dc82;
-  --accent-blue: #0096ff;
-  --accent-violet: #a855f7;
-  --accent-amber: #fbbf24;
-  --accent-rose: #fb7185;
-  --accent-pink: #f472b6;
-  --accent-cyan: #22d3ee;
+  /* Model accent colors - matching UI-demo palette */
+  --accent-emerald: #00bb7f;
+  --accent-blue: #1447e6;
+  --accent-violet: #ac4bff;
+  --accent-amber: #f99c00;
+  --accent-rose: #ff2357;
+  --accent-pink: #ff2357;
+  --accent-cyan: #00bb7f;
   
   /* Status colors */
-  --color-positive: #00dc82;
-  --color-negative: #ff5861;
-  --color-neutral: #6b7280;
+  --color-positive: #00bb7f;
+  --color-negative: #ff6568;
+  --color-neutral: #737373;
   
-  /* Borders - more subtle */
-  --border-subtle: rgba(255, 255, 255, 0.04);
-  --border-medium: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.12);
-  --border-accent: rgba(212, 168, 83, 0.3);
+  /* Borders - matching UI-demo opacity */
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-medium: rgba(255, 255, 255, 0.15);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --border-accent: rgba(255, 88, 0, 0.3);
   
-  /* Refined gradients */
-  --gradient-hero: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 168, 83, 0.15), transparent);
-  --gradient-card: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%);
+  /* Gradients - updated with orange accent */
+  --gradient-hero: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 88, 0, 0.15), transparent);
+  --gradient-card: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
   --gradient-shine: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 50%);
 }
 
@@ -59,7 +61,7 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
@@ -156,7 +158,7 @@ h3 {
   position: absolute;
   inset: 0;
   border-radius: 16px;
-  background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(212, 168, 83, 0.06), transparent 40%);
+  background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 88, 0, 0.08), transparent 40%);
   opacity: 0;
   transition: opacity 0.3s;
   pointer-events: none;
@@ -204,12 +206,13 @@ h3 {
   right: 0;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+  box-shadow: 0 0 8px rgba(255, 88, 0, 0.5);
 }
 
 .card-featured:hover {
   border-color: var(--accent-gold);
   transform: translateY(-3px);
-  box-shadow: 0 16px 50px -12px rgba(212, 168, 83, 0.15);
+  box-shadow: 0 16px 50px -12px rgba(255, 88, 0, 0.25);
 }
 
 /* Stat card - bento style */
@@ -266,7 +269,7 @@ h3 {
 
 /* Gradient text - signature */
 .text-gradient {
-  background: linear-gradient(135deg, var(--accent-gold) 0%, #f0d78c 100%);
+  background: linear-gradient(135deg, var(--accent-gold) 0%, #ff8a4d 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -314,13 +317,13 @@ h3 {
 
 .btn-primary {
   background: var(--accent-gold);
-  color: #0a0a0f;
+  color: #0a0a0a;
 }
 
 .btn-primary:hover {
-  background: #e0b45f;
+  background: #ff6b1a;
   transform: translateY(-1px);
-  box-shadow: 0 8px 30px rgba(212, 168, 83, 0.25);
+  box-shadow: 0 8px 30px rgba(255, 88, 0, 0.3);
 }
 
 .btn-secondary {
@@ -408,6 +411,7 @@ h3 {
   background: var(--accent-gold);
   border-radius: 1px;
   transition: transform 0.2s;
+  box-shadow: 0 0 8px rgba(255, 88, 0, 0.5);
 }
 
 .nav-link:hover::after {
@@ -512,8 +516,8 @@ h3 {
 }
 
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(212, 168, 83, 0.2); }
-  50% { box-shadow: 0 0 40px rgba(212, 168, 83, 0.4); }
+  0%, 100% { box-shadow: 0 0 20px rgba(255, 88, 0, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(255, 88, 0, 0.5); }
 }
 
 .animate-fade-in {
@@ -650,7 +654,7 @@ input[type="password"]:focus,
 input[type="search"]:focus {
   outline: none;
   border-color: var(--accent-gold);
-  box-shadow: 0 0 0 3px var(--accent-gold-dim);
+  box-shadow: 0 0 0 3px var(--accent-gold-dim), 0 0 12px rgba(255, 88, 0, 0.2);
 }
 
 input::placeholder {
@@ -680,10 +684,12 @@ select:focus {
 :focus-visible {
   outline: 2px solid var(--accent-gold);
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(255, 88, 0, 0.2);
 }
 
 ::selection {
-  background: rgba(212, 168, 83, 0.3);
+  background: rgba(255, 88, 0, 0.3);
+  color: #fafafa;
 }
 
 /* ========================================
