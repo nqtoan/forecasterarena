@@ -57,7 +57,7 @@ export default function V2PredictionMarkets() {
   return (
     <section className="container-wide mx-auto px-6 py-12 md:py-16">
       <div className="mb-8">
-        <p className="text-[var(--accent-gold)] font-mono text-sm tracking-wider mb-2">PREDICTION MARKETS</p>
+          <p className="text-[var(--accent-purple)] font-mono text-sm tracking-wider mb-2">PREDICTION MARKETS</p>
         <h2 className="text-2xl md:text-3xl">Active Markets</h2>
       </div>
 
@@ -156,7 +156,7 @@ export default function V2PredictionMarkets() {
         <div className="flex-shrink-0 border-t border-[var(--border-subtle)] bg-[var(--bg-card)] p-4">
           <Link 
             href="/markets" 
-            className="block w-full text-center px-4 py-2.5 bg-[var(--accent-gold)] text-[var(--bg-primary)] font-medium rounded hover:bg-[#ff6b1a] transition-colors"
+            className="block w-full text-center px-4 py-2.5 bg-[var(--accent-purple)] text-[var(--bg-primary)] font-medium rounded hover:bg-[#D4B8DC] transition-colors"
           >
             View more
           </Link>

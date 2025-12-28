@@ -31,11 +31,16 @@ export function Navigation() {
           {/* Logo */}
           <Link 
             href="/" 
-            className={`font-semibold text-lg transition-colors ${
-              pathname === '/' ? 'text-[var(--accent-gold)]' : 'hover:text-[var(--accent-gold)]'
+            className={`flex items-center gap-3 transition-colors ${
+              pathname === '/' ? 'text-[var(--accent-purple)]' : 'hover:text-[var(--accent-purple)]'
             }`}
           >
-            Forecaster Arena
+            <img 
+              src="/hypepredict-D.png" 
+              alt="HYPEPREDICT" 
+              className="h-8 w-auto"
+            />
+            <span className="font-semibold text-lg">HYPEPREDICT</span>
           </Link>
           
           {/* Desktop Nav */}
@@ -109,7 +114,7 @@ export function Navigation() {
               onClick={() => setMobileMenuOpen(false)}
               className={`px-4 py-3 rounded-lg transition-colors ${
                 isActive(link.href) 
-                  ? 'bg-[var(--accent-gold-dim)] text-[var(--accent-gold)]' 
+                  ? 'bg-[var(--accent-gold-dim)] text-[var(--accent-purple)]' 
                   : 'text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
               }`}
             >

@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { GITHUB_URL } from '@/lib/constants';
 
 export const metadata = {
-  title: 'About | Forecaster Arena',
-  description: 'About Forecaster Arena - an academic-grade benchmark for LLM forecasting capabilities.',
+  title: 'About | HYPEPREDICT',
+  description: 'About HYPEPREDICT - an academic-grade benchmark for LLM forecasting capabilities.',
 };
 
 export default function AboutPage() {
@@ -16,7 +16,7 @@ export default function AboutPage() {
         <div className="glow-orb -top-40 right-0 opacity-20" />
         
         <div className="container-medium mx-auto px-6 py-14 relative z-10">
-          <p className="text-[var(--accent-gold)] font-mono text-sm tracking-wider mb-3">ABOUT</p>
+            <p className="text-[var(--accent-purple)] font-mono text-sm tracking-wider mb-3">ABOUT</p>
           <h1 className="text-4xl md:text-6xl mb-6 max-w-3xl">
             Reality as the
             <br />
@@ -40,7 +40,7 @@ export default function AboutPage() {
               <span className="text-[var(--text-secondary)]">We test prediction, not recall.</span>
             </h2>
             <p className="text-lg text-[var(--text-secondary)] leading-relaxed">
-              Forecaster Arena uses real prediction markets from Polymarket. 
+              HYPEPREDICT uses real prediction markets from Polymarket. 
               Models make forecasts about future events, outcomes that cannot exist 
               in any training data because they haven&apos;t happened yet.
             </p>
@@ -53,7 +53,7 @@ export default function AboutPage() {
         <div className="absolute inset-0 dot-grid opacity-20" />
         <div className="container-wide mx-auto px-6 relative z-10">
           <div className="mb-8">
-            <p className="text-[var(--accent-gold)] font-mono text-sm tracking-wider mb-2">PHILOSOPHY</p>
+            <p className="text-[var(--accent-purple)] font-mono text-sm tracking-wider mb-2">PHILOSOPHY</p>
             <h2 className="text-3xl">Core Principles</h2>
           </div>
           
@@ -97,7 +97,7 @@ export default function AboutPage() {
       <section className="py-12">
         <div className="container-wide mx-auto px-6">
           <div className="mb-8">
-            <p className="text-[var(--accent-gold)] font-mono text-sm tracking-wider mb-2">METRICS</p>
+            <p className="text-[var(--accent-purple)] font-mono text-sm tracking-wider mb-2">METRICS</p>
             <h2 className="text-3xl">What We Measure</h2>
           </div>
           
@@ -106,7 +106,7 @@ export default function AboutPage() {
             <div className="card-featured p-6">
               <div className="flex items-start justify-between mb-4">
                 <h3 className="text-xl font-semibold">Brier Score</h3>
-                <span className="font-mono text-xs text-[var(--accent-gold)] px-2 py-1 bg-[var(--accent-gold-dim)] rounded">Primary</span>
+                <span className="font-mono text-xs text-[var(--accent-purple)] px-2 py-1 bg-[var(--accent-gold-dim)] rounded">Primary</span>
               </div>
               <p className="text-[var(--text-secondary)] mb-4">
                 Measures calibration: how well confidence matches accuracy.
@@ -180,7 +180,7 @@ export default function AboutPage() {
               <div>
                 <h2 className="text-xl font-semibold mb-3">Important Disclaimer</h2>
                 <p className="text-[var(--text-secondary)] leading-relaxed mb-4">
-                  Forecaster Arena is an <strong className="text-[var(--text-primary)]">educational and research project</strong>. 
+                  HYPEPREDICT is an <strong className="text-[var(--text-primary)]">educational and research project</strong>. 
                   All trading is simulated (paper trading). No real money is ever at risk.
                 </p>
                 <p className="text-[var(--text-secondary)] leading-relaxed">
@@ -203,7 +203,7 @@ export default function AboutPage() {
                 MG
               </div>
               <div>
-                <p className="text-[var(--accent-gold)] font-mono text-xs tracking-wider mb-1">CONTACT</p>
+                <p className="text-[var(--accent-purple)] font-mono text-xs tracking-wider mb-1">CONTACT</p>
                 <h3 className="text-2xl font-semibold leading-tight">Mert Gulsun</h3>
                 <p className="text-[var(--text-secondary)]">UC Berkeley</p>
               </div>
@@ -243,7 +243,7 @@ export default function AboutPage() {
         <div className="absolute inset-0 dot-grid opacity-20" />
         <div className="container-medium mx-auto px-6 relative z-10">
           <div className="mb-6">
-            <p className="text-[var(--accent-gold)] font-mono text-sm tracking-wider mb-2">STACK</p>
+            <p className="text-[var(--accent-purple)] font-mono text-sm tracking-wider mb-2">STACK</p>
             <h2 className="text-3xl">Built With</h2>
           </div>
           

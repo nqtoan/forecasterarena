@@ -22,6 +22,7 @@ const config: Config = {
         'text-muted': 'var(--text-muted)',
         // Accent colors
         'accent-gold': 'var(--accent-gold)',
+        'accent-purple': 'var(--accent-purple)',
         'accent-primary': 'var(--accent-primary)',
         // Status colors
         'positive': 'var(--color-positive)',
@@ -45,8 +46,8 @@ const config: Config = {
         'card': '16px',
       },
       boxShadow: {
-        'glow-orange': '0 0 20px rgba(255, 88, 0, 0.3)',
-        'glow-orange-lg': '0 0 40px rgba(255, 88, 0, 0.5)',
+        'glow-purple': '0 0 20px rgba(202, 172, 210, 0.3)',
+        'glow-purple-lg': '0 0 40px rgba(202, 172, 210, 0.5)',
       },
     },
   },

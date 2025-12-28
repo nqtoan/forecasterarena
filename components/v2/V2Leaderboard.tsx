@@ -22,7 +22,7 @@ export default function V2Leaderboard({ data, hasRealData }: V2LeaderboardProps)
     <section className="container-wide mx-auto px-6 py-12 md:py-16">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
         <div>
-          <p className="text-[var(--accent-gold)] font-mono text-sm tracking-wider mb-2">LEADERBOARD</p>
+          <p className="text-[var(--accent-purple)] font-mono text-sm tracking-wider mb-2">LEADERBOARD</p>
           <h2 className="text-2xl md:text-3xl">Current Standings</h2>
         </div>
         <Link href="/models" className="btn btn-ghost group">
@@ -102,7 +102,7 @@ export default function V2Leaderboard({ data, hasRealData }: V2LeaderboardProps)
                   style={{ backgroundColor: entry.color }}
                 />
                 <div>
-                  <p className="font-medium group-hover:text-[var(--accent-gold)] transition-colors">{entry.display_name}</p>
+                  <p className="font-medium group-hover:text-[var(--accent-purple)] transition-colors">{entry.display_name}</p>
                   <p className="text-sm text-[var(--text-muted)]">{entry.provider}</p>
                 </div>
               </div>

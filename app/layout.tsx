@@ -7,12 +7,12 @@ import { Navigation } from "@/components/Navigation";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export const metadata: Metadata = {
-  title: "Forecaster Arena | AI Models Competing in Prediction Markets",
+  title: "HYPEPREDICT | AI Models Competing in Prediction Markets",
   description: "AI models competing in prediction markets. Reality as the ultimate benchmark. See which LLMs predict the future best.",
   keywords: ["AI", "LLM", "prediction markets", "Polymarket", "benchmark", "forecasting"],
-  authors: [{ name: "Forecaster Arena" }],
+  authors: [{ name: "HYPEPREDICT" }],
   openGraph: {
-    title: "Forecaster Arena",
+    title: "HYPEPREDICT",
     description: "AI models competing in prediction markets. Reality as the ultimate benchmark.",
     type: "website",
   },
@@ -29,8 +29,8 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           {/* Brand */}
           <div className="md:col-span-5">
-            <Link href="/" className="font-semibold text-xl inline-block mb-6 hover:text-[var(--accent-gold)] transition-colors">
-              Forecaster Arena
+            <Link href="/" className="font-semibold text-xl inline-block mb-6 hover:text-[var(--accent-purple)] transition-colors">
+              HYPEPREDICT
             </Link>
             <p className="text-[var(--text-secondary)] text-sm leading-relaxed max-w-sm mb-6">
               Reality as the ultimate benchmark. Seven frontier LLMs compete in prediction markets.
@@ -46,19 +46,19 @@ function Footer() {
           <div className="md:col-span-2">
             <h4 className="font-mono text-xs mb-5 text-[var(--text-muted)] uppercase tracking-wider">Explore</h4>
             <ul className="space-y-3">
-              <li><Link href="/models" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-gold)] transition-colors">Models</Link></li>
-              <li><Link href="/cohorts" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-gold)] transition-colors">Cohorts</Link></li>
-              <li><Link href="/markets" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-gold)] transition-colors">Markets</Link></li>
-              <li><Link href="/changelog" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-gold)] transition-colors">Changelog</Link></li>
+              <li><Link href="/models" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-purple)] transition-colors">Models</Link></li>
+              <li><Link href="/cohorts" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-purple)] transition-colors">Cohorts</Link></li>
+              <li><Link href="/markets" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-purple)] transition-colors">Markets</Link></li>
+              <li><Link href="/changelog" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-purple)] transition-colors">Changelog</Link></li>
             </ul>
           </div>
 
           <div className="md:col-span-2">
             <h4 className="font-mono text-xs mb-5 text-[var(--text-muted)] uppercase tracking-wider">Research</h4>
             <ul className="space-y-3">
-              <li><Link href="/methodology" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-gold)] transition-colors">Methodology</Link></li>
-              <li><Link href="/about" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-gold)] transition-colors">About</Link></li>
-              <li><a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-gold)] transition-colors">GitHub</a></li>
+              <li><Link href="/methodology" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-purple)] transition-colors">Methodology</Link></li>
+              <li><Link href="/about" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-purple)] transition-colors">About</Link></li>
+              <li><a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="text-sm text-[var(--text-secondary)] hover:text-[var(--accent-purple)] transition-colors">GitHub</a></li>
             </ul>
           </div>
 
@@ -71,7 +71,7 @@ function Footer() {
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-[var(--text-muted)]">Markets Synced</span>
-                <span className="font-mono text-[var(--color-positive)]">100+</span>
+                <span className="font-mono text-[var(--accent-purple)]">100+</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-[var(--text-muted)]">Data Source</span>
@@ -83,7 +83,7 @@ function Footer() {
 
         <div className="border-t border-[var(--border-subtle)] mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-[var(--text-muted)]">
-            © {new Date().getFullYear()} Forecaster Arena. Open source research project.
+            © {new Date().getFullYear()} HYPEPREDICT. Open source research project.
           </p>
           <p className="text-sm text-[var(--text-muted)]">
             Paper trading only. Not financial advice.
@@ -101,6 +101,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/hypepredict-D.png" type="image/png" />
+      </head>
       <body>
         {/* Google Analytics */}
         <Script

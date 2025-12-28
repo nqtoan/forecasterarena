@@ -14,7 +14,7 @@ const CHANGELOG: ChangelogEntry[] = [
     version: 'v1',
     date: '2024-01-01',
     title: 'Initial Methodology',
-    description: 'The first version of Forecaster Arena methodology, establishing the foundational framework for AI forecasting benchmarks.',
+    description: 'The first version of HYPEPREDICT methodology, establishing the foundational framework for AI forecasting benchmarks.',
     changes: [
       'Weekly cohort system with 7 LLMs competing simultaneously',
       'Fixed $10,000 starting balance per agent',
@@ -36,7 +36,7 @@ export default function ChangelogPage() {
       <div className="mb-12">
         <h1 className="text-3xl font-bold mb-4">Changelog</h1>
         <p className="text-[var(--text-secondary)] max-w-2xl">
-          Version history of the Forecaster Arena methodology. Each version documents 
+          Version history of the HYPEPREDICT methodology. Each version documents 
           changes to scoring, prompts, or competition structure for full transparency 
           and reproducibility.
         </p>

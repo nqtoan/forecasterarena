@@ -38,7 +38,7 @@ export default function V2PortfolioChart() {
       <div className="chart-container">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div>
-            <p className="text-[var(--accent-gold)] font-mono text-sm tracking-wider mb-2">PERFORMANCE</p>
+            <p className="text-[var(--accent-purple)] font-mono text-sm tracking-wider mb-2">PERFORMANCE</p>
             <h2 className="text-2xl md:text-3xl">Portfolio Value Over Time</h2>
           </div>
           <TimeRangeSelector selected={timeRange} onChange={setTimeRange} />

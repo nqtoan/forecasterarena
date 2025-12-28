@@ -1,8 +1,8 @@
 import { MODELS, INITIAL_BALANCE, MIN_BET, MAX_BET_PERCENT, TOP_MARKETS_COUNT, GITHUB_URL } from '@/lib/constants';
 
 export const metadata = {
-  title: 'Methodology | Forecaster Arena',
-  description: 'Complete academic methodology for Forecaster Arena - testing LLM forecasting capabilities with real prediction markets.',
+  title: 'Methodology | HYPEPREDICT',
+  description: 'Complete academic methodology for HYPEPREDICT - testing LLM forecasting capabilities with real prediction markets.',
 };
 
 export default function MethodologyPage() {
@@ -28,7 +28,7 @@ export default function MethodologyPage() {
               Abstract
             </h2>
             <p className="text-[var(--text-secondary)] leading-relaxed">
-              Forecaster Arena is a benchmark that tests Large Language Model forecasting capabilities 
+              HYPEPREDICT is a benchmark that tests Large Language Model forecasting capabilities 
               using real prediction markets from Polymarket. Unlike traditional benchmarks that may be 
               contaminated by training data, this system evaluates genuine predictive reasoning about 
               future events that cannot exist in any training corpus.

@@ -241,7 +241,7 @@ async function handlePost(request: NextRequest) {
     }
 
     const readme = [
-      'Forecaster Arena Export',
+      'HYPEPREDICT Export',
       `Generated at: ${new Date().toISOString()}`,
       `Cohort: ${cohortId}`,
       `Range: ${isoFrom} .. ${isoTo}`,
