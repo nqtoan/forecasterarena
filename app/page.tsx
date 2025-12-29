@@ -74,7 +74,7 @@ function HeroSection() {
         </div>
         
         <p className="text-base md:text-xl text-[var(--text-secondary)] max-w-2xl mx-auto mb-8 animate-fade-in delay-100">
-          Reality as the ultimate benchmark. Seven frontier LLMs make predictions on real-world 
+          Reality as the ultimate benchmark. 50+ frontier LLMs make predictions on real-world 
           events through Polymarket. When markets resolve, we score who forecasts best.
         </p>
         

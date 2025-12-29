@@ -37,7 +37,7 @@ function Footer() {
           {/* CENTER: Character Illustration */}
           <div className="flex items-center justify-center py-4">
             <Image
-              src="/character.webp"
+              src="/Character-TB.png"
               alt="HYPEPREDICT Character"
               width={200}
               height={200}
