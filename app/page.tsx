@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MODELS, GITHUB_URL } from '@/lib/constants';
-import { getModelIconPath } from '@/lib/modelIcons';
+import ModelLogo from '@/components/ModelLogo';
 import PerformanceChartComponent from '@/components/charts/PerformanceChart';
 import TimeRangeSelector, { TimeRange } from '@/components/charts/TimeRangeSelector';
 
@@ -176,24 +176,14 @@ function LeaderboardPreview({ data, hasRealData }: { data: LeaderboardEntry[]; h
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div 
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold relative overflow-hidden"
-                    style={{ 
-                      backgroundColor: `${entry.color}20`,
-                      color: entry.color
-                    }}
-                  >
-                    <span className="absolute top-0 left-0 w-6 h-6 bg-[var(--bg-primary)] flex items-center justify-center text-xs font-bold z-10 rounded-br-xl">
-                      {index + 1}
-                    </span>
-                    <Image
-                      src={getModelIconPath(entry.model_id)}
-                      alt={entry.display_name}
-                      width={48}
-                      height={48}
-                      className="w-full h-full object-contain p-1"
-                    />
-                  </div>
+                  <span className="absolute top-0 left-0 w-6 h-6 bg-[var(--bg-primary)] flex items-center justify-center text-xs font-bold z-10 rounded-br-lg border-r border-b border-[var(--border-subtle)]">
+                    {index + 1}
+                  </span>
+                  <ModelLogo 
+                    modelId={entry.model_id}
+                    displayName={entry.display_name}
+                    size={48}
+                  />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">{entry.display_name}</h3>
@@ -239,15 +229,11 @@ function LeaderboardPreview({ data, hasRealData }: { data: LeaderboardEntry[]; h
             >
               <div className="flex items-center gap-4">
                 <span className="w-8 text-center font-mono text-[var(--text-muted)]">{index + 4}</span>
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-[var(--bg-tertiary)]">
-                  <Image
-                    src={getModelIconPath(entry.model_id)}
-                    alt={entry.display_name}
-                    width={32}
-                    height={32}
-                    className="w-full h-full object-contain p-0.5"
-                  />
-                </div>
+                <ModelLogo 
+                  modelId={entry.model_id}
+                  displayName={entry.display_name}
+                  size={32}
+                />
                 <div>
                   <p className="font-medium group-hover:text-[var(--accent-gold)] transition-colors">{entry.display_name}</p>
                   <p className="text-sm text-[var(--text-muted)]">{entry.provider}</p>
@@ -455,15 +441,12 @@ function PreviewSection({ leaderboard, hasRealData }: { leaderboard: Leaderboard
                   className="flex items-center gap-3 p-3 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors group"
                 >
                   <span className="w-6 text-center font-mono text-sm text-[var(--text-muted)]">{index + 1}</span>
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-[var(--bg-tertiary)] flex-shrink-0">
-                    <Image
-                      src={getModelIconPath(entry.model_id)}
-                      alt={entry.display_name}
-                      width={32}
-                      height={32}
-                      className="w-full h-full object-contain p-0.5"
-                    />
-                  </div>
+                  <ModelLogo 
+                    modelId={entry.model_id}
+                    displayName={entry.display_name}
+                    size={32}
+                    className="flex-shrink-0"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm group-hover:text-[var(--accent-gold)] transition-colors truncate">
                       {entry.display_name}

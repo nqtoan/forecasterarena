@@ -1,9 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { LeaderboardEntry } from '@/lib/types';
-import { getModelIconPath } from '@/lib/modelIcons';
+import ModelLogo from '@/components/ModelLogo';
 
 function formatPnL(value: number | null, hasData: boolean): string {
   if (!hasData || value === null) return 'N/A';
@@ -47,24 +46,14 @@ export default function V2Leaderboard({ data, hasRealData }: V2LeaderboardProps)
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div 
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold relative overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-secondary)]"
-                    style={{ 
-                      backgroundColor: `${entry.color}15`,
-                      color: entry.color
-                    }}
-                  >
-                    <span className="absolute top-0 left-0 w-6 h-6 bg-[var(--bg-primary)] flex items-center justify-center text-xs font-bold z-10 rounded-br-xl border-r border-b border-[var(--border-subtle)]">
-                      {index + 1}
-                    </span>
-                    <Image
-                      src={getModelIconPath(entry.model_id)}
-                      alt={entry.display_name}
-                      width={48}
-                      height={48}
-                      className="w-full h-full object-contain p-1.5"
-                    />
-                  </div>
+                  <span className="absolute top-0 left-0 w-6 h-6 bg-[var(--bg-primary)] flex items-center justify-center text-xs font-bold z-10 rounded-br-lg border-r border-b border-[var(--border-subtle)]">
+                    {index + 1}
+                  </span>
+                  <ModelLogo 
+                    modelId={entry.model_id}
+                    displayName={entry.display_name}
+                    size={48}
+                  />
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">{entry.display_name}</h3>
@@ -110,15 +99,11 @@ export default function V2Leaderboard({ data, hasRealData }: V2LeaderboardProps)
             >
               <div className="flex items-center gap-4">
                 <span className="w-8 text-center font-mono text-[var(--text-muted)]">{index + 4}</span>
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
-                  <Image
-                    src={getModelIconPath(entry.model_id)}
-                    alt={entry.display_name}
-                    width={32}
-                    height={32}
-                    className="w-full h-full object-contain p-1"
-                  />
-                </div>
+                <ModelLogo 
+                  modelId={entry.model_id}
+                  displayName={entry.display_name}
+                  size={32}
+                />
                 <div>
                   <p className="font-medium group-hover:text-[var(--accent-purple)] transition-colors">{entry.display_name}</p>
                   <p className="text-sm text-[var(--text-muted)]">{entry.provider}</p>

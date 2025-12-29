@@ -2,9 +2,8 @@
 
 import { useEffect, useState, useMemo, use } from 'react';
 import { useParams } from 'next/navigation';
-import Image from 'next/image';
 import { MODELS } from '@/lib/constants';
-import { getModelIconPath } from '@/lib/modelIcons';
+import ModelLogo from '@/components/ModelLogo';
 import PerformanceChart from '@/components/charts/PerformanceChart';
 import TimeRangeSelector, { TimeRange } from '@/components/charts/TimeRangeSelector';
 
@@ -160,18 +159,11 @@ export default function ModelDetailPage() {
 
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start gap-6 mb-10">
-        <div 
-          className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold relative overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-secondary)]"
-          style={{ backgroundColor: `${model.color}20` }}
-        >
-          <Image
-            src={getModelIconPath(model.id)}
-            alt={model.displayName}
-            width={80}
-            height={80}
-            className="w-full h-full object-contain p-2.5"
-          />
-        </div>
+        <ModelLogo 
+          modelId={model.id}
+          displayName={model.displayName}
+          size={80}
+        />
         
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-3 mb-2">

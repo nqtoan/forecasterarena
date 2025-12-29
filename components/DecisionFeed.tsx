@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { getModelIconPathFromDisplayName } from '@/lib/modelIcons';
+import ModelLogo from '@/components/ModelLogo';
 
 interface Decision {
   id: string;
@@ -146,15 +145,11 @@ export default function DecisionFeed({
             {/* Header */}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded flex items-center justify-center overflow-hidden bg-[var(--bg-secondary)] border border-[var(--border-subtle)] flex-shrink-0">
-                  <Image
-                    src={getModelIconPathFromDisplayName(decision.model_display_name)}
-                    alt={decision.model_display_name}
-                    width={24}
-                    height={24}
-                    className="w-full h-full object-contain p-0.5"
-                  />
-                </div>
+                <ModelLogo 
+                  displayName={decision.model_display_name}
+                  size={24}
+                  className="flex-shrink-0"
+                />
                 <span className="font-medium text-sm">{decision.model_display_name}</span>
                 <span className={`px-2 py-0.5 text-xs font-medium rounded ${actionStyle.bg} ${actionStyle.text}`}>
                   {decision.action}

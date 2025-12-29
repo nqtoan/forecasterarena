@@ -2,8 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import Image from 'next/image';
-import { getModelIconPath } from '@/lib/modelIcons';
+import ModelLogo from '@/components/ModelLogo';
 import PerformanceChart from '@/components/charts/PerformanceChart';
 import TimeRangeSelector, { TimeRange } from '@/components/charts/TimeRangeSelector';
 
@@ -265,18 +264,11 @@ export default function AgentCohortDetailPage() {
 
       {/* Header Section */}
       <div className="flex flex-col md:flex-row items-start gap-6 mb-10">
-        <div
-          className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold relative overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-secondary)]"
-          style={{ backgroundColor: `${data.model.color}20` }}
-        >
-          <Image
-            src={getModelIconPath(data.model.id)}
-            alt={data.model.display_name}
-            width={80}
-            height={80}
-            className="w-full h-full object-contain p-2.5"
-          />
-        </div>
+        <ModelLogo 
+          modelId={data.model.id}
+          displayName={data.model.display_name}
+          size={80}
+        />
 
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-3 mb-2">

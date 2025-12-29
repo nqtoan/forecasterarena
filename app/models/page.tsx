@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { MODELS } from '@/lib/constants';
-import { getModelIconPath } from '@/lib/modelIcons';
+import ModelLogo from '@/components/ModelLogo';
 
 interface ModelStats {
   model_id: string;
@@ -104,23 +103,14 @@ export default function ModelsPage() {
                 <div className="flex flex-col md:flex-row md:items-center gap-8">
                   {/* Leader badge and info */}
                   <div className="flex items-center gap-6">
-                    <div 
-                      className="w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-bold relative overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-secondary)]"
-                      style={{ 
-                        backgroundColor: `${leader.color}15`,
-                        color: leader.color,
-                        boxShadow: `0 0 40px ${leader.color}30`
-                      }}
-                    >
-                      <span className="absolute top-0 left-0 w-8 h-8 bg-[var(--bg-primary)] flex items-center justify-center text-xs font-bold z-10 rounded-br-2xl border-r border-b border-[var(--border-subtle)]">
+                    <div className="relative">
+                      <span className="absolute top-0 left-0 w-8 h-8 bg-[var(--bg-primary)] flex items-center justify-center text-xs font-bold z-10 rounded-br-lg border-r border-b border-[var(--border-subtle)]">
                         #1
                       </span>
-                      <Image
-                        src={getModelIconPath(leader.id)}
-                        alt={leader.displayName}
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-contain p-2.5"
+                      <ModelLogo 
+                        modelId={leader.id}
+                        displayName={leader.displayName}
+                        size={80}
                       />
                     </div>
                     <div>
@@ -190,21 +180,11 @@ export default function ModelsPage() {
               >
                 <div className="flex items-start justify-between mb-5">
                   <div className="flex items-center gap-4">
-                    <div 
-                      className="w-14 h-14 rounded-xl flex items-center justify-center font-bold text-lg relative overflow-hidden bg-[var(--bg-secondary)] border border-[var(--border-subtle)]"
-                      style={{ 
-                        backgroundColor: `${model.color}15`,
-                        color: model.color 
-                      }}
-                    >
-                      <Image
-                        src={getModelIconPath(model.id)}
-                        alt={model.displayName}
-                        width={56}
-                        height={56}
-                        className="w-full h-full object-contain p-2"
-                      />
-                    </div>
+                    <ModelLogo 
+                      modelId={model.id}
+                      displayName={model.displayName}
+                      size={56}
+                    />
                     <div>
                       <h3 className="font-semibold text-lg group-hover:text-[var(--accent-gold)] transition-colors">
                         {model.displayName}
