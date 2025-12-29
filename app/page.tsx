@@ -487,12 +487,14 @@ function PreviewSection({ leaderboard, hasRealData }: { leaderboard: Leaderboard
                     >
                       <div className="flex items-start gap-3 mb-2">
                         <div className="flex-shrink-0">
-                          <div className="w-8 h-8 rounded-full bg-[var(--bg-tertiary)] border border-[#585858] flex items-center justify-center">
-                            {market.status === 'active' ? (
-                              <span className="w-2 h-2 rounded-full bg-[var(--color-positive)]" />
-                            ) : (
-                              <span className="text-xs text-[var(--text-muted)]">M</span>
-                            )}
+                          <div className="w-8 h-8 rounded-full bg-[var(--bg-tertiary)] border border-[#585858] flex items-center justify-center overflow-hidden">
+                            <Image
+                              src="/icon-items.png"
+                              alt="Market"
+                              width={32}
+                              height={32}
+                              className="w-full h-full object-contain p-1"
+                            />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">

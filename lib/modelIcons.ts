@@ -11,12 +11,12 @@ import { ModelId, MODELS } from './constants';
  */
 export function getModelIconPath(modelId: ModelId | string): string {
   const iconMap: Record<string, string> = {
-    'gpt-5.1': '/models/OpenAI.png',
+    'gpt-5.1': '/models/GPT.png',
     'gemini-2.5-flash': '/models/Gemini-logo.webp',
-    'grok-4': '/models/Grok logo.webp',
-    'claude-opus-4.5': '/models/claude-opus-4-5.svg',
+    'grok-4': '/models/Grok logo.svg',
+    'claude-opus-4.5': '/models/claude-opus-4-5.png',
     'deepseek-v3.1': '/models/deepseek.webp',
-    'kimi-k2': '/models/KIMI-logo.png',
+    'kimi-k2': '/models/KIMI.png',
     'qwen-3-next': '/models/qwen-logo.webp',
   };
 

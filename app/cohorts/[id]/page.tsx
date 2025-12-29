@@ -104,19 +104,20 @@ export default function CohortDetailPage() {
       curve.forEach(point => allDates.add(point.date));
     });
 
-    // Build chart data
+    // Build chart data - use safe keys (replace dots with underscores)
     return Array.from(allDates).sort().map(date => {
-      const point: { date: string;[modelId: string]: string | number } = { date };
+      const point: { date: string;[key: string]: string | number } = { date };
       Object.entries(equityCurves).forEach(([modelId, curve]) => {
         const dataPoint = curve.find(p => p.date === date);
-        point[modelId] = dataPoint?.value || 10000;
+        const safeKey = modelId.replace(/\./g, '_'); // Safe key for chart
+        point[safeKey] = dataPoint?.value || 10000;
       });
       return point;
     });
   }, [equityCurves]);
 
   const modelConfigs = MODELS.map(m => ({
-    id: m.id,
+    id: m.id.replace(/\./g, '_'), // Safe key for chart (matches chart data keys)
     name: m.displayName,
     color: m.color
   }));

@@ -132,8 +132,10 @@ interface AgentCohortData {
 
 export default function AgentCohortDetailPage() {
   const params = useParams<{ id: string; modelId: string }>();
-  const cohortId = params.id;
-  const modelId = params.modelId;
+  
+  // Safely handle params - Next.js automatically decodes URL params
+  const cohortId = params?.id ? String(params.id) : '';
+  const modelId = params?.modelId ? String(params.modelId) : '';
 
   const [data, setData] = useState<AgentCohortData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -142,23 +144,40 @@ export default function AgentCohortDetailPage() {
   const [timeRange, setTimeRange] = useState<TimeRange>('1M');
 
   useEffect(() => {
+    // Guard against missing params
+    if (!cohortId || !modelId) {
+      setError('Invalid parameters');
+      setLoading(false);
+      return;
+    }
+
     async function fetchData() {
       try {
-        const res = await fetch(`/api/cohorts/${cohortId}/models/${modelId}`);
+        // Next.js handles URL encoding automatically, but we'll encode to be safe
+        const encodedModelId = encodeURIComponent(modelId);
+        const encodedCohortId = encodeURIComponent(cohortId);
+        const res = await fetch(`/api/cohorts/${encodedCohortId}/models/${encodedModelId}`);
+        
         if (!res.ok) {
           if (res.status === 404) {
-            const error = await res.json();
-            setError(error.error || 'Not found');
+            try {
+              const errorData = await res.json();
+              setError(errorData.error || 'Model not found in this arena');
+            } catch {
+              setError('Model not found in this arena');
+            }
           } else {
             setError('Failed to load data');
           }
+          setLoading(false);
           return;
         }
+        
         const json = await res.json();
         setData(json);
       } catch (err) {
+        console.error('Error fetching data:', err);
         setError('Failed to load data');
-        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -166,17 +185,19 @@ export default function AgentCohortDetailPage() {
     fetchData();
   }, [cohortId, modelId]);
 
-  // Transform equity curve for chart
+  // Transform equity curve for chart - use safe key
   const chartData = useMemo(() => {
-    if (!data?.equity_curve?.length) return [];
+    if (!data?.equity_curve?.length || !modelId) return [];
+    // Use a safe key that doesn't contain dots
+    const safeKey = modelId.replace(/\./g, '_');
     return data.equity_curve.map(point => ({
       date: point.date,
-      [modelId]: point.value
+      [safeKey]: point.value
     }));
   }, [data, modelId]);
 
   const chartModels = data?.model ? [{
-    id: data.model.id,
+    id: data.model.id.replace(/\./g, '_'), // Safe key for chart
     name: data.model.display_name,
     color: data.model.color
   }] : [];

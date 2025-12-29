@@ -54,23 +54,45 @@ interface ModelData {
 
 export default function ModelDetailPage() {
   const params = useParams<{ id: string }>();
-  const id = params.id;
-  const model = MODELS.find(m => m.id === id);
+  
+  // Safely handle params - Next.js automatically decodes URL params
+  const id = params?.id ? String(params.id) : '';
+  const model = id ? MODELS.find(m => m.id === id) : null;
   const [data, setData] = useState<ModelData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedDecision, setSelectedDecision] = useState<Decision | null>(null);
   const [timeRange, setTimeRange] = useState<TimeRange>('1M');
 
   useEffect(() => {
+    // Guard against missing id
+    if (!id) {
+      setError('Invalid model ID');
+      setLoading(false);
+      return;
+    }
+
     async function fetchData() {
       try {
-        const res = await fetch(`/api/models/${id}`);
-        if (res.ok) {
-          const json = await res.json();
-          setData(json);
+        // Next.js handles URL encoding automatically, but we'll encode to be safe
+        const encodedId = encodeURIComponent(id);
+        const res = await fetch(`/api/models/${encodedId}`);
+        
+        if (!res.ok) {
+          if (res.status === 404) {
+            setError('Model not found');
+          } else {
+            setError('Failed to load model data');
+          }
+          setLoading(false);
+          return;
         }
-      } catch (error) {
-        console.error('Error fetching model data:', error);
+        
+        const json = await res.json();
+        setData(json);
+      } catch (err) {
+        console.error('Error fetching model data:', err);
+        setError('Failed to load model data');
       } finally {
         setLoading(false);
       }
@@ -79,27 +101,39 @@ export default function ModelDetailPage() {
     fetchData();
   }, [id]);
 
-  // Transform equity curve for chart
+  // Transform equity curve for chart - use safe key
   const chartData = useMemo(() => {
-    if (!data?.equity_curve?.length) return [];
+    if (!data?.equity_curve?.length || !id) return [];
+    // Use a safe key that doesn't contain dots
+    const safeKey = id.replace(/\./g, '_');
     return data.equity_curve.map(point => ({
       date: point.snapshot_timestamp,
-      [id]: point.total_value
+      [safeKey]: point.total_value
     }));
   }, [data, id]);
 
   const chartModels = model ? [{
-    id: model.id,
+    id: model.id.replace(/\./g, '_'), // Safe key for chart
     name: model.displayName,
     color: model.color
   }] : [];
 
-  if (!model) {
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="container-wide mx-auto px-6 py-20 text-center">
+        <div className="text-[var(--text-muted)]">Loading...</div>
+      </div>
+    );
+  }
+
+  // Show error or not found state
+  if (error || !model) {
     return (
       <div className="container-wide mx-auto px-6 py-20 text-center">
         <h1 className="text-2xl font-bold mb-4">Model Not Found</h1>
         <p className="text-[var(--text-secondary)] mb-6">
-          The model you&apos;re looking for doesn&apos;t exist.
+          {error || 'The model you&apos;re looking for doesn&apos;t exist.'}
         </p>
         <a href="/models" className="btn btn-primary">
           View All Models
