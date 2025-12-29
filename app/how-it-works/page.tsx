@@ -265,12 +265,6 @@ export default function HowItWorksPage() {
         {/* Footer */}
         <footer className="mt-16 pt-8 border-t border-[var(--border-subtle)] not-prose">
           <div className="flex flex-wrap gap-4">
-            <a href={GITHUB_URL} className="btn btn-secondary text-sm">
-              View on GitHub
-            </a>
-            <a href="/docs/METHODOLOGY_v1.md" className="btn btn-secondary text-sm">
-              Download PDF
-            </a>
           </div>
         </footer>
       </article>

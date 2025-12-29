@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface Market {
   id: string;
@@ -92,12 +93,14 @@ export default function V2PredictionMarkets() {
                       <div className="flex items-center gap-4">
                         {/* Left: Market icon/avatar */}
                         <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] flex items-center justify-center">
-                            {market.status === 'active' ? (
-                              <span className="w-2 h-2 rounded-full bg-[var(--color-positive)]" />
-                            ) : (
-                              <span className="text-xs text-[var(--text-muted)]">M</span>
-                            )}
+                          <div className="w-10 h-10 rounded-full bg-[var(--bg-tertiary)] border border-[var(--border-subtle)] flex items-center justify-center overflow-hidden">
+                            <Image
+                              src="/icon-items.png"
+                              alt="Market"
+                              width={40}
+                              height={40}
+                              className="w-full h-full object-contain p-1.5"
+                            />
                           </div>
                         </div>
                         

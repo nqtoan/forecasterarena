@@ -48,13 +48,13 @@ export default function V2Leaderboard({ data, hasRealData }: V2LeaderboardProps)
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <div 
-                    className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold relative overflow-hidden"
+                    className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold relative overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-secondary)]"
                     style={{ 
-                      backgroundColor: `${entry.color}20`,
+                      backgroundColor: `${entry.color}15`,
                       color: entry.color
                     }}
                   >
-                    <span className="absolute top-0 left-0 w-6 h-6 bg-[var(--bg-primary)] flex items-center justify-center text-xs font-bold z-10 rounded-br-xl">
+                    <span className="absolute top-0 left-0 w-6 h-6 bg-[var(--bg-primary)] flex items-center justify-center text-xs font-bold z-10 rounded-br-xl border-r border-b border-[var(--border-subtle)]">
                       {index + 1}
                     </span>
                     <Image
@@ -62,7 +62,7 @@ export default function V2Leaderboard({ data, hasRealData }: V2LeaderboardProps)
                       alt={entry.display_name}
                       width={48}
                       height={48}
-                      className="w-full h-full object-contain p-1"
+                      className="w-full h-full object-contain p-1.5"
                     />
                   </div>
                 </div>
@@ -110,13 +110,13 @@ export default function V2Leaderboard({ data, hasRealData }: V2LeaderboardProps)
             >
               <div className="flex items-center gap-4">
                 <span className="w-8 text-center font-mono text-[var(--text-muted)]">{index + 4}</span>
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-[var(--bg-tertiary)]">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
                   <Image
                     src={getModelIconPath(entry.model_id)}
                     alt={entry.display_name}
                     width={32}
                     height={32}
-                    className="w-full h-full object-contain p-0.5"
+                    className="w-full h-full object-contain p-1"
                   />
                 </div>
                 <div>

@@ -206,7 +206,7 @@ export const SITE_NAME = 'Forecaster Arena';
 /**
  * GitHub repository URL
  */
-export const GITHUB_URL = process.env.NEXT_PUBLIC_GITHUB_URL || 'https://github.com/setrf/forecasterarena';
+export const GITHUB_URL = process.env.NEXT_PUBLIC_GITHUB_URL || 'https://github.com/';
 
 // ============================================================================
 // API CONFIGURATION

@@ -105,14 +105,14 @@ export default function ModelsPage() {
                   {/* Leader badge and info */}
                   <div className="flex items-center gap-6">
                     <div 
-                      className="w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-bold relative overflow-hidden"
+                      className="w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-bold relative overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-secondary)]"
                       style={{ 
-                        backgroundColor: `${leader.color}20`,
+                        backgroundColor: `${leader.color}15`,
                         color: leader.color,
                         boxShadow: `0 0 40px ${leader.color}30`
                       }}
                     >
-                      <span className="absolute top-0 left-0 w-8 h-8 bg-[var(--bg-primary)] flex items-center justify-center text-xs font-bold z-10 rounded-br-2xl">
+                      <span className="absolute top-0 left-0 w-8 h-8 bg-[var(--bg-primary)] flex items-center justify-center text-xs font-bold z-10 rounded-br-2xl border-r border-b border-[var(--border-subtle)]">
                         #1
                       </span>
                       <Image
@@ -120,7 +120,7 @@ export default function ModelsPage() {
                         alt={leader.displayName}
                         width={80}
                         height={80}
-                        className="w-full h-full object-contain p-2"
+                        className="w-full h-full object-contain p-2.5"
                       />
                     </div>
                     <div>
@@ -191,7 +191,7 @@ export default function ModelsPage() {
                 <div className="flex items-start justify-between mb-5">
                   <div className="flex items-center gap-4">
                     <div 
-                      className="w-14 h-14 rounded-xl flex items-center justify-center font-bold text-lg relative overflow-hidden bg-[var(--bg-tertiary)]"
+                      className="w-14 h-14 rounded-xl flex items-center justify-center font-bold text-lg relative overflow-hidden bg-[var(--bg-secondary)] border border-[var(--border-subtle)]"
                       style={{ 
                         backgroundColor: `${model.color}15`,
                         color: model.color 
@@ -202,7 +202,7 @@ export default function ModelsPage() {
                         alt={model.displayName}
                         width={56}
                         height={56}
-                        className="w-full h-full object-contain p-1.5"
+                        className="w-full h-full object-contain p-2"
                       />
                     </div>
                     <div>

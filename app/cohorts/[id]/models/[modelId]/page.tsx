@@ -266,15 +266,15 @@ export default function AgentCohortDetailPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row items-start gap-6 mb-10">
         <div
-          className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold relative overflow-hidden"
-          style={{ backgroundColor: data.model.color }}
+          className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold relative overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-secondary)]"
+          style={{ backgroundColor: `${data.model.color}20` }}
         >
           <Image
             src={getModelIconPath(data.model.id)}
             alt={data.model.display_name}
             width={80}
             height={80}
-            className="w-full h-full object-contain p-2"
+            className="w-full h-full object-contain p-2.5"
           />
         </div>
 

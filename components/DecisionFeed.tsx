@@ -146,7 +146,7 @@ export default function DecisionFeed({
             {/* Header */}
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded flex items-center justify-center overflow-hidden bg-[var(--bg-tertiary)] flex-shrink-0">
+                <div className="w-6 h-6 rounded flex items-center justify-center overflow-hidden bg-[var(--bg-secondary)] border border-[var(--border-subtle)] flex-shrink-0">
                   <Image
                     src={getModelIconPathFromDisplayName(decision.model_display_name)}
                     alt={decision.model_display_name}
