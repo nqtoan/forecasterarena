@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
+import { getModelIconPath } from '@/lib/modelIcons';
 import PerformanceChart from '@/components/charts/PerformanceChart';
 import TimeRangeSelector, { TimeRange } from '@/components/charts/TimeRangeSelector';
 
@@ -194,7 +196,7 @@ export default function AgentCohortDetailPage() {
         <h1 className="text-2xl font-bold mb-4">{error || 'Not Found'}</h1>
         <p className="text-[var(--text-secondary)] mb-6">
           {error === 'Agent not found in this cohort'
-            ? 'This model was not active in this cohort.'
+            ? 'This model was not active in this arena.'
             : 'The page you are looking for does not exist.'}
         </p>
         <a href="/cohorts" className="btn btn-primary">
@@ -251,11 +253,11 @@ export default function AgentCohortDetailPage() {
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)] mb-6">
         <a href="/cohorts" className="hover:text-[var(--text-primary)] transition-colors">
-          Cohorts
+          Weekly Arena
         </a>
         <span>›</span>
         <a href={`/cohorts/${cohortId}`} className="hover:text-[var(--text-primary)] transition-colors">
-          Cohort #{data.cohort.cohort_number}
+          Arena #{data.cohort.cohort_number}
         </a>
         <span>›</span>
         <span className="text-[var(--text-primary)]">{data.model.display_name}</span>
@@ -264,10 +266,16 @@ export default function AgentCohortDetailPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row items-start gap-6 mb-10">
         <div
-          className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold"
+          className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold relative overflow-hidden"
           style={{ backgroundColor: data.model.color }}
         >
-          {data.model.display_name.substring(0, 2).toUpperCase()}
+          <Image
+            src={getModelIconPath(data.model.id)}
+            alt={data.model.display_name}
+            width={80}
+            height={80}
+            className="w-full h-full object-contain p-2"
+          />
         </div>
 
         <div className="flex-1">

@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { MODELS } from '@/lib/constants';
+import { getModelIconPath } from '@/lib/modelIcons';
 
 interface ModelStats {
   model_id: string;
@@ -103,14 +105,23 @@ export default function ModelsPage() {
                   {/* Leader badge and info */}
                   <div className="flex items-center gap-6">
                     <div 
-                      className="w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-bold"
+                      className="w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-bold relative overflow-hidden"
                       style={{ 
                         backgroundColor: `${leader.color}20`,
                         color: leader.color,
                         boxShadow: `0 0 40px ${leader.color}30`
                       }}
                     >
-                      #1
+                      <span className="absolute top-0 left-0 w-8 h-8 bg-[var(--bg-primary)] flex items-center justify-center text-xs font-bold z-10 rounded-br-2xl">
+                        #1
+                      </span>
+                      <Image
+                        src={getModelIconPath(leader.id)}
+                        alt={leader.displayName}
+                        width={80}
+                        height={80}
+                        className="w-full h-full object-contain p-2"
+                      />
                     </div>
                     <div>
                       <p className="text-xs font-mono text-[var(--accent-gold)] mb-1">CURRENT LEADER</p>
@@ -180,13 +191,19 @@ export default function ModelsPage() {
                 <div className="flex items-start justify-between mb-5">
                   <div className="flex items-center gap-4">
                     <div 
-                      className="w-14 h-14 rounded-xl flex items-center justify-center font-bold text-lg relative overflow-hidden"
+                      className="w-14 h-14 rounded-xl flex items-center justify-center font-bold text-lg relative overflow-hidden bg-[var(--bg-tertiary)]"
                       style={{ 
                         backgroundColor: `${model.color}15`,
                         color: model.color 
                       }}
                     >
-                      <span className="relative z-10">{model.displayName.substring(0, 2).toUpperCase()}</span>
+                      <Image
+                        src={getModelIconPath(model.id)}
+                        alt={model.displayName}
+                        width={56}
+                        height={56}
+                        className="w-full h-full object-contain p-1.5"
+                      />
                     </div>
                     <div>
                       <h3 className="font-semibold text-lg group-hover:text-[var(--accent-gold)] transition-colors">

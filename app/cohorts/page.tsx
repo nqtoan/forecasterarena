@@ -75,14 +75,14 @@ export default function CohortsPage() {
         <div className="container-wide mx-auto px-6 py-16 relative z-10">
           <p className="text-[var(--accent-gold)] font-mono text-sm tracking-wider mb-2">COMPETITIONS</p>
           <h1 className="text-4xl md:text-5xl mb-4">
-            Weekly <span className="font-serif-italic">Cohorts</span>
+            Weekly <span className="font-serif-italic">Arena</span>
           </h1>
           <p className="text-[var(--text-secondary)] max-w-xl text-lg">
-            Each cohort is an independent competition. New cohorts start every Sunday
+            Each arena is an independent competition. New arenas start every Sunday
             at 00:00 UTC with fresh $10,000 for each model.
           </p>
           
-          {/* Next cohort countdown */}
+          {/* Next arena countdown */}
           <div className="mt-8 inline-flex items-center gap-4 px-6 py-4 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)]">
             <div className="w-10 h-10 rounded-lg bg-[var(--accent-gold-dim)] flex items-center justify-center">
               <svg className="w-5 h-5 text-[var(--accent-gold)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,7 +90,7 @@ export default function CohortsPage() {
               </svg>
             </div>
             <div>
-              <p className="text-sm text-[var(--text-muted)]">Next Cohort Starts</p>
+              <p className="text-sm text-[var(--text-muted)]">Next Arena Starts</p>
               <p className="font-semibold">{getNextSunday()} at 00:00 UTC</p>
             </div>
           </div>
@@ -99,11 +99,11 @@ export default function CohortsPage() {
 
       {/* Main Content */}
       <section className="container-wide mx-auto px-6 py-12">
-        {/* Active Cohorts */}
+        {/* Active Arena */}
         <div className="mb-16">
           <div className="flex items-center gap-3 mb-6">
             <span className="w-2 h-2 rounded-full bg-[var(--color-positive)] animate-pulse" />
-            <h2 className="text-xl font-semibold">Active Cohorts</h2>
+            <h2 className="text-xl font-semibold">Active Arena</h2>
           </div>
           
           {loading ? (
@@ -117,9 +117,9 @@ export default function CohortsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <p className="text-xl font-medium mb-2">No Active Cohort</p>
+              <p className="text-xl font-medium mb-2">No Active Arena</p>
               <p className="text-[var(--text-muted)]">
-                Next cohort starts {getNextSunday()} at 00:00 UTC
+                Next arena starts {getNextSunday()} at 00:00 UTC
               </p>
             </div>
           ) : (
@@ -134,7 +134,7 @@ export default function CohortsPage() {
                     <div>
                       <span className="badge badge-active mb-3">Live</span>
                       <h3 className="text-2xl font-bold group-hover:text-[var(--accent-gold)] transition-colors">
-                        Cohort #{cohort.cohort_number}
+                        Arena #{cohort.cohort_number}
                       </h3>
                     </div>
                     <svg className="w-5 h-5 text-[var(--text-muted)] transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -162,9 +162,9 @@ export default function CohortsPage() {
           )}
         </div>
 
-        {/* Completed Cohorts */}
+        {/* Completed Arena */}
         <div className="mb-16">
-          <h2 className="text-xl font-semibold mb-6">Completed Cohorts</h2>
+          <h2 className="text-xl font-semibold mb-6">Completed Arena</h2>
           
           {loading ? (
             <div className="flex items-center justify-center py-16 card">
@@ -177,9 +177,9 @@ export default function CohortsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                 </svg>
               </div>
-              <p className="text-xl font-medium mb-2">No Completed Cohorts</p>
+              <p className="text-xl font-medium mb-2">No Completed Arena</p>
               <p className="text-[var(--text-muted)]">
-                Past cohorts will appear here after all bets resolve
+                Past arenas will appear here after all bets resolve
               </p>
             </div>
           ) : (
@@ -192,7 +192,7 @@ export default function CohortsPage() {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <h3 className="text-lg font-bold group-hover:text-[var(--accent-gold)] transition-colors">
-                      Cohort #{cohort.cohort_number}
+                      Arena #{cohort.cohort_number}
                     </h3>
                     <span className="badge badge-completed">Completed</span>
                   </div>
@@ -212,25 +212,25 @@ export default function CohortsPage() {
           )}
         </div>
 
-        {/* How Cohorts Work */}
+        {/* How Arena Works */}
         <div className="grid md:grid-cols-3 gap-px bg-[var(--border-subtle)] rounded-2xl overflow-hidden">
           {[
             {
               num: '01',
               title: 'Weekly Start',
-              desc: 'New cohorts begin every Sunday at midnight UTC with fresh capital for all 7 models.',
+              desc: 'New arenas begin every Sunday at midnight UTC with fresh capital for all 7 models.',
               accent: 'var(--accent-gold)'
             },
             {
               num: '02',
               title: 'Independent Runs',
-              desc: 'Each cohort is independent. Compare models across cohorts for statistical significance.',
+              desc: 'Each arena is independent. Compare models across arenas for statistical significance.',
               accent: 'var(--accent-blue)'
             },
             {
               num: '03',
               title: 'Full Resolution',
-              desc: 'Cohorts complete when all bets resolve. No artificial time limits or cutoffs.',
+              desc: 'Arenas complete when all bets resolve. No artificial time limits or cutoffs.',
               accent: 'var(--accent-violet)'
             }
           ].map((item) => (

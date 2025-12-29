@@ -124,7 +124,7 @@ export default function CohortDetailPage() {
   if (loading) {
     return (
       <div className="container-wide mx-auto px-6 py-20 text-center text-[var(--text-muted)]">
-        Loading cohort...
+        Loading arena...
       </div>
     );
   }
@@ -132,9 +132,9 @@ export default function CohortDetailPage() {
   if (error || !cohort) {
     return (
       <div className="container-wide mx-auto px-6 py-20 text-center">
-        <h1 className="text-2xl font-bold mb-4">{error || 'Cohort Not Found'}</h1>
+        <h1 className="text-2xl font-bold mb-4">{error || 'Arena Not Found'}</h1>
         <a href="/cohorts" className="btn btn-primary">
-          Back to Cohorts
+          Back to Weekly Arena
         </a>
       </div>
     );
@@ -179,12 +179,12 @@ export default function CohortDetailPage() {
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
-        Back to cohorts
+        Back to Weekly Arena
       </a>
 
       {/* Header */}
       <div className="flex flex-wrap items-center gap-4 mb-8">
-        <h1 className="text-3xl font-bold">Cohort #{cohort.cohort_number}</h1>
+        <h1 className="text-3xl font-bold">Arena #{cohort.cohort_number}</h1>
         <span className={`badge ${cohort.status === 'active' ? 'badge-active' : 'badge-completed'}`}>
           {cohort.status}
         </span>
@@ -258,7 +258,7 @@ export default function CohortDetailPage() {
                   key={agent.id}
                   onClick={() => window.location.href = `/cohorts/${id}/models/${agent.model_id}`}
                   className="cursor-pointer hover:bg-[var(--bg-tertiary)] transition-colors"
-                  title={`View ${agent.model_display_name}'s performance in this cohort`}
+                  title={`View ${agent.model_display_name}'s performance in this arena`}
                 >
                   <td className="text-[var(--text-muted)]">{i + 1}</td>
                   <td>

@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { LeaderboardEntry } from '@/lib/types';
+import { getModelIconPath } from '@/lib/modelIcons';
 
 function formatPnL(value: number | null, hasData: boolean): string {
   if (!hasData || value === null) return 'N/A';
@@ -44,14 +46,25 @@ export default function V2Leaderboard({ data, hasRealData }: V2LeaderboardProps)
           >
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div 
-                  className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold"
-                  style={{ 
-                    backgroundColor: `${entry.color}20`,
-                    color: entry.color
-                  }}
-                >
-                  {index + 1}
+                <div className="relative">
+                  <div 
+                    className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold relative overflow-hidden"
+                    style={{ 
+                      backgroundColor: `${entry.color}20`,
+                      color: entry.color
+                    }}
+                  >
+                    <span className="absolute top-0 left-0 w-6 h-6 bg-[var(--bg-primary)] flex items-center justify-center text-xs font-bold z-10 rounded-br-xl">
+                      {index + 1}
+                    </span>
+                    <Image
+                      src={getModelIconPath(entry.model_id)}
+                      alt={entry.display_name}
+                      width={48}
+                      height={48}
+                      className="w-full h-full object-contain p-1"
+                    />
+                  </div>
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">{entry.display_name}</h3>
@@ -97,10 +110,15 @@ export default function V2Leaderboard({ data, hasRealData }: V2LeaderboardProps)
             >
               <div className="flex items-center gap-4">
                 <span className="w-8 text-center font-mono text-[var(--text-muted)]">{index + 4}</span>
-                <div 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: entry.color }}
-                />
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-[var(--bg-tertiary)]">
+                  <Image
+                    src={getModelIconPath(entry.model_id)}
+                    alt={entry.display_name}
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-contain p-0.5"
+                  />
+                </div>
                 <div>
                   <p className="font-medium group-hover:text-[var(--accent-purple)] transition-colors">{entry.display_name}</p>
                   <p className="text-sm text-[var(--text-muted)]">{entry.provider}</p>

@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useMemo, use } from 'react';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 import { MODELS } from '@/lib/constants';
+import { getModelIconPath } from '@/lib/modelIcons';
 import PerformanceChart from '@/components/charts/PerformanceChart';
 import TimeRangeSelector, { TimeRange } from '@/components/charts/TimeRangeSelector';
 
@@ -159,10 +161,16 @@ export default function ModelDetailPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row items-start gap-6 mb-10">
         <div 
-          className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold"
+          className="w-20 h-20 rounded-2xl flex items-center justify-center text-white text-2xl font-bold relative overflow-hidden"
           style={{ backgroundColor: model.color }}
         >
-          {model.displayName.substring(0, 2).toUpperCase()}
+          <Image
+            src={getModelIconPath(model.id)}
+            alt={model.displayName}
+            width={80}
+            height={80}
+            className="w-full h-full object-contain p-2"
+          />
         </div>
         
         <div className="flex-1">
@@ -204,7 +212,7 @@ export default function ModelDetailPage() {
         </div>
         <div className="stat-card">
           <div className="stat-value">{loading ? '...' : numCohorts}</div>
-          <div className="stat-label">Cohorts</div>
+          <div className="stat-label">Arena</div>
         </div>
       </div>
       
@@ -225,16 +233,16 @@ export default function ModelDetailPage() {
       
       {/* Two column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Cohort Performance */}
+        {/* Arena Performance */}
         <div className="glass-card p-6">
-          <h3 className="text-lg font-semibold mb-4">Cohort Performance</h3>
+          <h3 className="text-lg font-semibold mb-4">Arena Performance</h3>
           
           {loading ? (
             <div className="text-center py-8 text-[var(--text-muted)]">Loading...</div>
           ) : !data?.cohort_performance?.length ? (
             <div className="text-center py-12 text-[var(--text-muted)]">
-              <p>No cohort data yet</p>
-              <p className="text-sm mt-2">Check back after the first cohort starts</p>
+              <p>No arena data yet</p>
+              <p className="text-sm mt-2">Check back after the first arena starts</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -243,10 +251,10 @@ export default function ModelDetailPage() {
                   key={cohort.cohort_number}
                   onClick={() => window.location.href = `/cohorts/${cohort.cohort_id}/models/${id}`}
                   className="p-4 bg-[var(--bg-tertiary)] rounded-lg cursor-pointer hover:bg-[var(--bg-secondary)] transition-colors"
-                  title={`View detailed performance in Cohort #${cohort.cohort_number}`}
+                  title={`View detailed performance in Arena #${cohort.cohort_number}`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium">Cohort #{cohort.cohort_number}</span>
+                    <span className="font-medium">Arena #{cohort.cohort_number}</span>
                     <span className={`badge ${cohort.cohort_status === 'active' ? 'badge-active' : 'badge-completed'}`}>
                       {cohort.cohort_status}
                     </span>
@@ -301,7 +309,7 @@ export default function ModelDetailPage() {
                         {decision.action}
                       </span>
                       <span className="text-sm text-[var(--text-muted)]">
-                        Cohort #{decision.cohort_number}, Week {decision.decision_week}
+                        Arena #{decision.cohort_number}, Week {decision.decision_week}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -346,7 +354,7 @@ export default function ModelDetailPage() {
                     {selectedDecision.action}
                   </span>
                   <span className="text-[var(--text-secondary)]">
-                    Cohort #{selectedDecision.cohort_number}, Week {selectedDecision.decision_week}
+                    Arena #{selectedDecision.cohort_number}, Week {selectedDecision.decision_week}
                   </span>
                 </div>
                 <button 

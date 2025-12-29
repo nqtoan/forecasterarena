@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { MODELS, GITHUB_URL } from '@/lib/constants';
+import { getModelIconPath } from '@/lib/modelIcons';
 import PerformanceChartComponent from '@/components/charts/PerformanceChart';
 import TimeRangeSelector, { TimeRange } from '@/components/charts/TimeRangeSelector';
 
@@ -77,8 +79,8 @@ function HeroSection() {
         </p>
         
         <div className="flex flex-wrap justify-center gap-4 animate-fade-in delay-200">
-          <Link href="/methodology" className="btn btn-primary">
-            Read the Methodology
+          <Link href="/how-it-works" className="btn btn-primary">
+            Read How It Works
             <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
@@ -173,14 +175,25 @@ function LeaderboardPreview({ data, hasRealData }: { data: LeaderboardEntry[]; h
           >
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div 
-                  className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold"
-                  style={{ 
-                    backgroundColor: `${entry.color}20`,
-                    color: entry.color
-                  }}
-                >
-                  {index + 1}
+                <div className="relative">
+                  <div 
+                    className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold relative overflow-hidden"
+                    style={{ 
+                      backgroundColor: `${entry.color}20`,
+                      color: entry.color
+                    }}
+                  >
+                    <span className="absolute top-0 left-0 w-6 h-6 bg-[var(--bg-primary)] flex items-center justify-center text-xs font-bold z-10 rounded-br-xl">
+                      {index + 1}
+                    </span>
+                    <Image
+                      src={getModelIconPath(entry.model_id)}
+                      alt={entry.display_name}
+                      width={48}
+                      height={48}
+                      className="w-full h-full object-contain p-1"
+                    />
+                  </div>
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg">{entry.display_name}</h3>
@@ -226,10 +239,15 @@ function LeaderboardPreview({ data, hasRealData }: { data: LeaderboardEntry[]; h
             >
               <div className="flex items-center gap-4">
                 <span className="w-8 text-center font-mono text-[var(--text-muted)]">{index + 4}</span>
-                <div 
-                  className="w-3 h-3 rounded-full" 
-                  style={{ backgroundColor: entry.color }}
-                />
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-[var(--bg-tertiary)]">
+                  <Image
+                    src={getModelIconPath(entry.model_id)}
+                    alt={entry.display_name}
+                    width={32}
+                    height={32}
+                    className="w-full h-full object-contain p-0.5"
+                  />
+                </div>
                 <div>
                   <p className="font-medium group-hover:text-[var(--accent-gold)] transition-colors">{entry.display_name}</p>
                   <p className="text-sm text-[var(--text-muted)]">{entry.provider}</p>
@@ -305,8 +323,8 @@ function HowItWorks() {
   const steps = [
     {
       num: '01',
-      title: 'Weekly Cohorts',
-      description: 'Every Sunday at 00:00 UTC, a new cohort begins. Each LLM starts with $10,000 virtual dollars.',
+      title: 'Weekly Arena',
+      description: 'Every Sunday at 00:00 UTC, a new arena begins. Each LLM starts with $10,000 virtual dollars.',
       accent: 'var(--accent-gold)'
     },
     {
@@ -337,10 +355,10 @@ function HowItWorks() {
       
       <div className="container-wide mx-auto px-6 relative z-10">
         <div className="max-w-xl mb-8 md:mb-10">
-          <p className="text-[var(--accent-gold)] font-mono text-sm tracking-wider mb-2">METHODOLOGY</p>
+          <p className="text-[var(--accent-gold)] font-mono text-sm tracking-wider mb-2">HOW IT WORKS</p>
           <h2 className="text-2xl md:text-3xl mb-3">How It Works</h2>
           <p className="text-[var(--text-secondary)] text-sm md:text-base">
-            A rigorous methodology designed for reproducibility and academic standards.
+            A rigorous system designed for reproducibility and academic standards.
           </p>
         </div>
         
@@ -373,6 +391,229 @@ function HowItWorks() {
   );
 }
 
+// Preview Section - Leaderboard and Prediction Markets
+function PreviewSection({ leaderboard, hasRealData }: { leaderboard: LeaderboardEntry[]; hasRealData: boolean }) {
+  const [markets, setMarkets] = useState<Array<{
+    id: string;
+    question: string;
+    current_price: number | null;
+    volume: number | null;
+    status: string;
+  }>>([]);
+  const [loadingMarkets, setLoadingMarkets] = useState(true);
+
+  useEffect(() => {
+    async function fetchMarkets() {
+      try {
+        const params = new URLSearchParams();
+        params.set('status', 'active');
+        params.set('sort', 'volume');
+        params.set('limit', '5');
+        params.set('offset', '0');
+
+        const res = await fetch(`/api/markets?${params}`);
+        if (res.ok) {
+          const data = await res.json();
+          const marketsData = (data.markets || []).slice(0, 5);
+          setMarkets(marketsData);
+        }
+      } catch {
+        console.log('Error fetching markets');
+      } finally {
+        setLoadingMarkets(false);
+      }
+    }
+    fetchMarkets();
+  }, []);
+
+  function formatVolume(volume: number | null): string {
+    if (!volume) return 'N/A';
+    if (volume >= 1000000) return `${(volume / 1000000).toFixed(1)}M USDT`;
+    if (volume >= 1000) return `${(volume / 1000).toFixed(0)}K USDT`;
+    return `${volume.toFixed(0)} USDT`;
+  }
+
+  function formatPrice(price: number | null): string {
+    if (price === null) return '50%';
+    return `${(price * 100).toFixed(0)}%`;
+  }
+
+  const top5Leaderboard = leaderboard.slice(0, 5);
+
+  return (
+    <section className="bg-[var(--bg-primary)] py-12 md:py-16">
+      <div className="container-wide mx-auto px-6">
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Leaderboard Preview - LEFT */}
+          <div className="bg-[var(--bg-secondary)] rounded-lg border border-[#585858] p-6">
+            <h3 className="text-lg font-semibold mb-4">Leaderboard</h3>
+            <div className="space-y-3">
+              {top5Leaderboard.map((entry, index) => (
+                <Link
+                  key={entry.model_id}
+                  href={`/models/${entry.model_id}`}
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors group"
+                >
+                  <span className="w-6 text-center font-mono text-sm text-[var(--text-muted)]">{index + 1}</span>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden bg-[var(--bg-tertiary)] flex-shrink-0">
+                    <Image
+                      src={getModelIconPath(entry.model_id)}
+                      alt={entry.display_name}
+                      width={32}
+                      height={32}
+                      className="w-full h-full object-contain p-0.5"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm group-hover:text-[var(--accent-gold)] transition-colors truncate">
+                      {entry.display_name}
+                    </p>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <p className={`text-sm font-mono ${!hasRealData ? 'text-[var(--text-muted)]' : entry.total_pnl >= 0 ? 'text-positive' : 'text-negative'}`}>
+                      {formatPnL(entry.total_pnl, hasRealData)}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Prediction Markets Preview - RIGHT */}
+          <div className="bg-[var(--bg-secondary)] rounded-lg border border-[#585858] p-6">
+            <h3 className="text-lg font-semibold mb-4">Prediction Markets</h3>
+            <div className="space-y-3">
+              {loadingMarkets ? (
+                <div className="space-y-3">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="h-16 bg-[var(--bg-tertiary)] rounded-lg" />
+                    </div>
+                  ))}
+                </div>
+              ) : markets.length > 0 ? (
+                markets.map((market) => {
+                  const yesPrice = market.current_price ?? 0.5;
+                  const noPrice = 1 - yesPrice;
+                  
+                  return (
+                    <Link
+                      key={market.id}
+                      href={`/markets/${market.id}`}
+                      className="block p-3 rounded-lg hover:bg-[var(--bg-tertiary)] transition-colors group"
+                    >
+                      <div className="flex items-start gap-3 mb-2">
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-[var(--bg-tertiary)] border border-[#585858] flex items-center justify-center">
+                            {market.status === 'active' ? (
+                              <span className="w-2 h-2 rounded-full bg-[var(--color-positive)]" />
+                            ) : (
+                              <span className="text-xs text-[var(--text-muted)]">M</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm leading-snug line-clamp-2 group-hover:text-[var(--accent-gold)] transition-colors">
+                            {market.question}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between ml-11">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono text-[var(--text-secondary)]">
+                            {formatPrice(yesPrice)}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.location.href = `/markets/${market.id}`;
+                            }}
+                            className="px-2 py-1 text-xs font-medium bg-[var(--color-positive)]/20 text-[var(--color-positive)] border border-[var(--color-positive)]/30 rounded hover:bg-[var(--color-positive)]/30 transition-colors"
+                          >
+                            YES
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.location.href = `/markets/${market.id}`;
+                            }}
+                            className="px-2 py-1 text-xs font-medium bg-[var(--color-negative)]/20 text-[var(--color-negative)] border border-[var(--color-negative)]/30 rounded hover:bg-[var(--color-negative)]/30 transition-colors"
+                          >
+                            NO
+                          </button>
+                        </div>
+                        <span className="text-xs text-[var(--text-muted)]">
+                          Vol. {formatVolume(market.volume)}
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })
+              ) : (
+                <div className="text-center py-8 text-[var(--text-muted)]">
+                  <p className="text-sm">No markets available</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Contract Token Section
+function ContractTokenSection() {
+  const [copied, setCopied] = useState(false);
+  const contractAddress = '0x...00';
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(contractAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  return (
+    <section className="w-full bg-[#000000] py-12 md:py-16">
+      <div className="container-wide mx-auto px-6">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-8">
+            AI Models Competing in Prediction Markets.
+          </h2>
+          
+          {/* Terminal Command Box */}
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-[#0a0a0a] border border-[#585858] rounded-lg p-4 md:p-6 flex items-center justify-between gap-4">
+              <code className="font-mono text-white text-sm md:text-base flex-1 text-left">
+                $HYPEPREDICT : {contractAddress}
+              </code>
+              <button
+                onClick={handleCopy}
+                className="flex-shrink-0 p-2 hover:opacity-70 transition-opacity"
+                aria-label="Copy contract address"
+              >
+                {copied ? (
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // CTA Section
 function CTASection() {
   return (
@@ -392,11 +633,11 @@ function CTASection() {
           </h2>
           <p className="text-[var(--text-secondary)] text-sm md:text-base max-w-xl mx-auto mb-6 md:mb-8">
             Every prompt, every decision, every calculation is documented. 
-            Our methodology meets the standards required for academic publication.
+            Our system meets the standards required for academic publication.
           </p>
           <div className="flex flex-wrap justify-center gap-3 md:gap-4">
-            <Link href="/methodology" className="btn btn-primary">
-              Read Methodology v1
+          <Link href="/how-it-works" className="btn btn-primary">
+            Read How It Works v1
               <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
@@ -450,6 +691,8 @@ export default function Home() {
       <LeaderboardPreview data={leaderboard} hasRealData={hasRealData} />
       <HowItWorks />
       <CTASection />
+      <PreviewSection leaderboard={leaderboard} hasRealData={hasRealData} />
+      <ContractTokenSection />
     </main>
   );
 }
