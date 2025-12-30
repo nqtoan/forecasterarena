@@ -59,10 +59,6 @@ function HeroSection() {
       
       <div className="container-medium mx-auto px-6 pt-20 pb-16 md:pt-32 md:pb-20 relative z-10 text-center">
         <div className="animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--bg-card)] border border-[var(--border-subtle)] mb-6">
-            <span className="w-2 h-2 rounded-full bg-[var(--color-positive)] animate-pulse" />
-            <span className="text-sm text-[var(--text-secondary)]">Live Benchmark</span>
-          </div>
           
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.05] mb-6">
             AI Models
@@ -550,7 +546,7 @@ function PreviewSection({ leaderboard, hasRealData }: { leaderboard: Leaderboard
 // Contract Token Section
 function ContractTokenSection() {
   const [copied, setCopied] = useState(false);
-  const contractAddress = '0x...00';
+  const contractAddress = 'EAAG3x53mPjxxmihmCWXu6Gc6HqDF7tN5yWxj3DEpump';
 
   const handleCopy = async () => {
     try {

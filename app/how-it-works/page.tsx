@@ -207,59 +207,6 @@ export default function HowItWorksPage() {
           </section>
 
           {/* Reproducibility */}
-          <section>
-            <h2 className="text-2xl font-semibold mb-6">5. Reproducibility</h2>
-            
-            <div className="space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-[var(--accent-emerald)] rounded-lg flex items-center justify-center text-white flex-shrink-0">
-                  +
-                </div>
-                <div>
-                  <h4 className="font-medium mb-1">Full Prompt Storage</h4>
-                  <p className="text-[var(--text-secondary)] text-sm">
-                    Complete system and user prompts stored for every decision.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-[var(--accent-emerald)] rounded-lg flex items-center justify-center text-white flex-shrink-0">
-                  +
-                </div>
-                <div>
-                  <h4 className="font-medium mb-1">Temperature = 0</h4>
-                  <p className="text-[var(--text-secondary)] text-sm">
-                    Deterministic outputs for reproducibility.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-[var(--accent-emerald)] rounded-lg flex items-center justify-center text-white flex-shrink-0">
-                  +
-                </div>
-                <div>
-                  <h4 className="font-medium mb-1">Open Source</h4>
-                  <p className="text-[var(--text-secondary)] text-sm">
-                    Complete codebase available for inspection and replication.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-[var(--accent-emerald)] rounded-lg flex items-center justify-center text-white flex-shrink-0">
-                  +
-                </div>
-                <div>
-                  <h4 className="font-medium mb-1">Versioned Methodology</h4>
-                  <p className="text-[var(--text-secondary)] text-sm">
-                    Each arena is tied to a specific methodology version.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
         </div>
 
         {/* Footer */}
