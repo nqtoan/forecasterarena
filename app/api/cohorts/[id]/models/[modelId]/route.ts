@@ -95,7 +95,14 @@ export async function GET(
       )
       WHERE a1.cohort_id = ?
         AND COALESCE(ps1.total_value, a1.cash_balance + a1.total_invested) > ?
-    `).get(cohortId, cohortId, totalValue) as { rank: number; total_agents: number };
+    `).get(cohortId, cohortId, totalValue) as { rank: number; total_agents: number } | undefined;
+
+    if (!rankResult) {
+      return NextResponse.json(
+        { error: 'Failed to calculate rank' },
+        { status: 500 }
+      );
+    }
 
     // Get Brier score
     const brierScore = getAverageBrierScore(agent.id);
@@ -199,6 +206,66 @@ export async function GET(
     // Get open positions with market info
     const positions = getPositionsWithMarkets(agent.id);
 
+    // Get closed positions with market info and outcomes
+    const closedPositions = db.prepare(`
+      SELECT
+        p.id,
+        p.market_id,
+        m.question as market_question,
+        p.side,
+        p.shares,
+        p.avg_entry_price,
+        p.total_cost,
+        p.status as position_status,
+        m.status as market_status,
+        m.resolution_outcome,
+        m.resolved_at,
+        p.closed_at,
+        p.opened_at,
+        (
+          SELECT decision_id FROM trades t
+          WHERE t.agent_id = p.agent_id 
+            AND t.market_id = p.market_id 
+            AND t.side = p.side
+            AND t.trade_type = 'BUY'
+          ORDER BY t.executed_at ASC
+          LIMIT 1
+        ) as opening_decision_id,
+        CASE
+          WHEN m.status = 'resolved' AND m.resolution_outcome = p.side THEN 'WON'
+          WHEN m.status = 'resolved' AND m.resolution_outcome != p.side AND m.resolution_outcome IS NOT NULL THEN 'LOST'
+          WHEN p.status = 'closed' AND m.status != 'resolved' THEN 'EXITED'
+          WHEN m.status = 'cancelled' THEN 'CANCELLED'
+          WHEN m.status = 'resolved' AND m.resolution_outcome IS NULL THEN 'UNKNOWN'
+          ELSE 'PENDING'
+        END as outcome,
+        CASE
+          WHEN m.status = 'resolved' AND m.resolution_outcome = p.side THEN p.shares * 1.0
+          WHEN m.status = 'resolved' AND m.resolution_outcome != p.side AND m.resolution_outcome IS NOT NULL THEN 0.0
+          WHEN p.status = 'closed' AND m.status != 'resolved' THEN (
+            SELECT COALESCE(SUM(t2.realized_pnl), 0)
+            FROM trades t2
+            WHERE t2.position_id = p.id AND t2.trade_type = 'SELL'
+          )
+          ELSE NULL
+        END as settlement_value,
+        CASE
+          WHEN m.status = 'resolved' AND m.resolution_outcome = p.side THEN (p.shares * 1.0) - p.total_cost
+          WHEN m.status = 'resolved' AND m.resolution_outcome != p.side AND m.resolution_outcome IS NOT NULL THEN 0.0 - p.total_cost
+          WHEN p.status = 'closed' AND m.status != 'resolved' THEN (
+            SELECT COALESCE(SUM(t2.realized_pnl), 0)
+            FROM trades t2
+            WHERE t2.position_id = p.id AND t2.trade_type = 'SELL'
+          )
+          ELSE NULL
+        END as pnl
+      FROM positions p
+      JOIN markets m ON p.market_id = m.id
+      WHERE p.agent_id = ? AND p.status IN ('closed', 'settled')
+      ORDER BY COALESCE(p.closed_at, m.resolved_at, p.opened_at) DESC
+      LIMIT 100
+    `).all(agent.id);
+
     // Get trade history with market info
     const trades = db.prepare(`
       SELECT
@@ -261,6 +328,7 @@ export async function GET(
       equity_curve: equityCurve,
       decisions: decisionsWithMarkets,
       positions: positions,
+      closed_positions: closedPositions,
       trades: trades,
       updated_at: new Date().toISOString()
     });
