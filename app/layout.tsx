@@ -85,7 +85,7 @@ function Footer() {
                 </svg>
               </a>
               <a
-                href="https://discord.gg/hypepredict"
+                href="https://discord.gg/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-white hover:opacity-70 transition-opacity"
