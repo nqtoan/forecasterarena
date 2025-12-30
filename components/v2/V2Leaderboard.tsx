@@ -6,7 +6,7 @@ import ModelLogo from '@/components/ModelLogo';
 
 function formatPnL(value: number | null, hasData: boolean): string {
   if (!hasData || value === null) return 'N/A';
-  const sign = value >= 0 ? '+' : '';
+  const sign = value >= 0 ? '+' : '-';
   return `${sign}$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
